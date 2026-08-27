@@ -195,7 +195,7 @@ function InvestigationHero({
   const heroIndustry = brief?.industry ?? NOT_PROVIDED;
   const heroDecision = normalizeDecisionOutcome(brief?.decision?.decision);
   const heroConfidence = getHeroConfidence(brief);
-  const heroTopFinding = brief?.presentation?.key_findings?.[0]?.statement;
+
   const summaryNode = brief ? buildSummaryDetailNode(brief) : null;
 
   return (
@@ -294,45 +294,6 @@ function InvestigationHero({
             VIEW FULL RESEARCH REPORT →
           </button>
         </div>
-
-        <aside className="hero-side">
-          <div className="hero-side-stack">
-            <div className="hero-context-card">
-              <div className="hero-section-label">PRIMARY QUESTION</div>
-              <PresentationText className="hero-question-text" lines={4}>
-                {brief?.primary_question ?? NOT_PROVIDED}
-              </PresentationText>
-              <div className="hero-context-note">
-                The report action opens the existing detail view with source-linked summary content.
-              </div>
-            </div>
-
-            <div className="hero-context-card hero-glance-card">
-              <div className="hero-section-label">AT A GLANCE</div>
-              <div className="hero-glance-grid">
-                <div className="hero-glance-item">
-                  <span className="hero-glance-label">Sources</span>
-                  <strong>{brief?.sources?.length ?? 0}</strong>
-                </div>
-                <div className="hero-glance-item">
-                  <span className="hero-glance-label">Checkpoints</span>
-                  <strong>{brief?.checkpoints?.length ?? 0}</strong>
-                </div>
-                <div className="hero-glance-item">
-                  <span className="hero-glance-label">Key findings</span>
-                  <strong>{brief?.presentation?.key_findings?.length ?? 0}</strong>
-                </div>
-              </div>
-
-              <div className="hero-glance-divider"></div>
-
-              <div className="hero-section-label">TOP FINDING</div>
-              <PresentationText className="hero-top-finding" lines={4}>
-                {heroTopFinding ?? NOT_PROVIDED}
-              </PresentationText>
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
   );
