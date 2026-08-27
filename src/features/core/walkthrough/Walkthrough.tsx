@@ -277,12 +277,7 @@ function InvestigationHero({
             </div>
           </div>
 
-          <div className="hero-summary-card">
-            <h2 className="hero-section-label">INVESTIGATION SUMMARY</h2>
-            <PresentationText className="hero-summary-text" lines={5}>
-              {brief?.presentation?.investigation_summary ?? NOT_PROVIDED}
-            </PresentationText>
-          </div>
+
 
           <button
             className="ap-detail-btn primary-detail-action hero-report-btn"

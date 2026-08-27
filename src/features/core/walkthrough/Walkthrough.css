@@ -2029,25 +2029,6 @@
   border-color: var(--color-border);
 }
 
-.hero-summary-card {
-  min-width: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  background: #ffffff;
-  padding: 18px;
-}
-
-.hero-summary-card {
-  margin-top: 18px;
-}
-
-
-
-.hero-summary-text {
-  margin: 0;
-  color: var(--color-text-primary);
-  line-height: 1.7;
-}
 
 .hero-report-btn {
   margin-top: var(--spacing-md);
