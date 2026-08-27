@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { forwardRef, type CSSProperties, type ReactNode } from 'react';
 import type { InvestigationBrief, InvestigationSource, Provenance } from '../../../types/investigationBrief';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -20,15 +20,11 @@ export function opportunityLabel(brief: InvestigationBrief): string {
   return stripOpportunityMetadata(title);
 }
 
-export function PresentationText({
-  children,
-  lines = 3,
-  className = '',
-}: {
+export const PresentationText = forwardRef<HTMLDivElement, {
   children: ReactNode;
   lines?: number;
   className?: string;
-}) {
+}>(({ children, lines = 3, className = '' }, ref) => {
   const content = typeof children === 'string'
     ? <MarkdownRenderer content={children} className="markdown-compact" />
     : children;
@@ -37,11 +33,12 @@ export function PresentationText({
     <div
       className={'presentation-text ' + className}
       style={{ '--presentation-lines': lines } as CSSProperties}
+      ref={ref}
     >
       {content}
     </div>
   );
-}
+});
 
 export function SourceIndicator({ count }: { count: number }) {
   return (

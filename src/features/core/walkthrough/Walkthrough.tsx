@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './Walkthrough.css';
 import { loadAllInvestigationBriefs } from '../../../data/investigationBriefLoader';
@@ -278,6 +278,15 @@ function InvestigationHero({
 function InvestigationOverview({ brief, onDetail }: { brief: InvestigationBrief, onDetail: (n: NodeData) => void }) {
   const p = brief.presentation;
   const d = brief.decision;
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const [showSummaryBtn, setShowSummaryBtn] = useState(false);
+
+  useEffect(() => {
+    if (summaryRef.current) {
+      // Check if text is overflowing its clamped height
+      setShowSummaryBtn(summaryRef.current.scrollHeight > summaryRef.current.clientHeight);
+    }
+  }, [p?.investigation_summary]);
 
   if (!p) return null;
 
@@ -289,19 +298,22 @@ function InvestigationOverview({ brief, onDetail }: { brief: InvestigationBrief,
         <div className="overview-top-row">
           <div className="overview-summary-box">
             <h3 className="section-label">INVESTIGATION SUMMARY</h3>
-            <PresentationText className="summary-text" lines={5}>{p.investigation_summary}</PresentationText>
-            <button
-              className="ap-detail-btn primary-detail-action"
-              onClick={() => onDetail({
-                type: 'INVESTIGATION SUMMARY',
-                id: brief.investigation_id + '-SUMMARY',
-                content: p.investigation_summary,
-                source_urls: getCitationUrls(p.investigation_summary, brief.traceability),
-                provenance: d.provenance,
-              })}
-            >
-              VIEW FULL SUMMARY →
-            </button>
+            <PresentationText className="summary-text" lines={10} ref={summaryRef}>{p.investigation_summary}</PresentationText>
+            {showSummaryBtn && (
+              <button
+                className="ap-detail-btn primary-detail-action"
+                style={{ marginTop: 'auto', paddingTop: '16px' }}
+                onClick={() => onDetail({
+                  type: 'INVESTIGATION SUMMARY',
+                  id: brief.investigation_id + '-SUMMARY',
+                  content: p.investigation_summary,
+                  source_urls: getCitationUrls(p.investigation_summary, brief.traceability),
+                  provenance: d.provenance,
+                })}
+              >
+                VIEW FULL SUMMARY →
+              </button>
+            )}
           </div>
 
           <div className="overview-decision-box">
