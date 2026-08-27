@@ -71,15 +71,7 @@ function getHeroConfidence(brief?: InvestigationBrief): string {
   return confidences.length === 1 ? confidences[0] : NOT_PROVIDED;
 }
 
-function buildSummaryDetailNode(brief: InvestigationBrief): NodeData {
-  return {
-    type: 'INVESTIGATION SUMMARY',
-    id: brief.investigation_id + '-SUMMARY',
-    content: brief.presentation.investigation_summary,
-    source_urls: getCitationUrls(brief.presentation.investigation_summary, brief.traceability),
-    provenance: brief.decision.provenance,
-  };
-}
+
 
 // --------------------------------------------------
 // COMMON COMPONENTS
@@ -171,16 +163,15 @@ function ResearchNode({
 // ZONES
 // --------------------------------------------------
 
-function InvestigationHero({ 
-  brief, 
-  opportunityId, 
+function InvestigationHero({
+  brief,
+  opportunityId,
   onOpportunityChange,
   companies,
   selectedCompany,
   onCompanyChange,
   companyBriefs,
-  onDetail
-}: { 
+}: {
   brief?: InvestigationBrief;
   opportunityId: string;
   onOpportunityChange: (id: string) => void;
@@ -188,7 +179,6 @@ function InvestigationHero({
   selectedCompany: string;
   onCompanyChange: (company: string) => void;
   companyBriefs: InvestigationBrief[];
-  onDetail: (n: NodeData) => void;
 }) {
   const heroTitle = brief ? opportunityLabel(brief) : 'Yet to explore';
   const heroCompany = brief?.company ?? NOT_PROVIDED;
@@ -196,7 +186,7 @@ function InvestigationHero({
   const heroDecision = normalizeDecisionOutcome(brief?.decision?.decision);
   const heroConfidence = getHeroConfidence(brief);
 
-  const summaryNode = brief ? buildSummaryDetailNode(brief) : null;
+
 
   return (
     <section className="investigation-hero">
@@ -279,15 +269,6 @@ function InvestigationHero({
 
 
 
-          <button
-            className="ap-detail-btn primary-detail-action hero-report-btn"
-            onClick={() => {
-              if (summaryNode) onDetail(summaryNode);
-            }}
-            disabled={!summaryNode}
-          >
-            VIEW FULL RESEARCH REPORT →
-          </button>
         </div>
       </div>
     </section>
@@ -1074,7 +1055,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function ReusableIntelligenceSidebar({ brief, isOpen, onToggle }: { brief: InvestigationBrief, isOpen: boolean, onToggle: () => void }) {
   const objects = useMemo(() => buildServiceNowReusableIntelligence(brief), [brief]);
-  
+
   const [activeObject, setActiveObject] = useState<IntelligenceObject | null>(null);
 
   useEffect(() => {
@@ -1099,7 +1080,7 @@ function ReusableIntelligenceSidebar({ brief, isOpen, onToggle }: { brief: Inves
       {isOpen && (
         <div className="sidebar-content rap-content" style={{ padding: '32px 24px 24px 24px' }}>
           <h2 className="zone-title" style={{ fontSize: '11px', letterSpacing: '0.1em', marginBottom: '24px' }}>REUSABLE INTELLIGENCE</h2>
-          
+
           {!activeObject && (
             <div className="intel-overview">
               <div className="intel-category-list">
@@ -1107,7 +1088,7 @@ function ReusableIntelligenceSidebar({ brief, isOpen, onToggle }: { brief: Inves
                   if (key === 'ART_IMPROVEMENT') return null;
                   const items = groups[key] || [];
                   if (items.length === 0) return null;
-                  
+
                   return (
                     <div key={key} className="intel-category-group" style={{ marginBottom: '16px' }}>
                       <div className="intel-object-list">
@@ -1398,7 +1379,6 @@ export function Walkthrough() {
             selectedCompany={selectedCompany}
             onCompanyChange={setSelectedCompany}
             companyBriefs={companyBriefs}
-            onDetail={openDetail}
           />
           <InvestigationSignalStrip brief={brief} />
           <div className="main-content-scroll">
