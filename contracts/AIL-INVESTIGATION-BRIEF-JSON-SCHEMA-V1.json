@@ -1,0 +1,388 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIL Investigation Brief",
+  "description": "Formal contract for ChatGPT-generated Investigation Briefs to AIL",
+  "type": "object",
+  "required": [
+    "investigation_id",
+    "company",
+    "opportunity",
+    "decision",
+    "primary_question",
+    "checkpoints",
+    "evidence",
+    "claims",
+    "inferences",
+    "hypotheses",
+    "results",
+    "traceability",
+    "investigation_type",
+    "research_status",
+    "presentation"
+  ],
+  "properties": {
+    "investigation_id": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "opportunity": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "object",
+      "required": [
+        "decision",
+        "reason",
+        "reusable_intelligence",
+        "provenance"
+      ],
+      "properties": {
+        "decision": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "reusable_intelligence": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/definitions/Provenance"
+        }
+      }
+    },
+    "primary_question": {
+      "type": "string"
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "what_changed",
+          "evidence",
+          "result",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "what_changed": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/definitions/Provenance"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "classification",
+          "source",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "classification": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/definitions/Provenance"
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "evidence_basis",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "evidence_basis": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provenance": {
+            "$ref": "#/definitions/Provenance"
+          }
+        }
+      }
+    },
+    "inferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "basis",
+          "implication",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "implication": {
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/definitions/Provenance"
+          }
+        }
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "status",
+          "supporting_basis",
+          "falsification_basis",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "UNVERIFIED",
+              "PENDING",
+              "ACTIVE",
+              "PASSED",
+              "FAILED",
+              "BLOCKED",
+              "SURVIVED",
+              "KILLED"
+            ]
+          },
+          "supporting_basis": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "falsification_basis": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provenance": {
+            "$ref": "#/definitions/Provenance"
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "status",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "UNVERIFIED",
+              "PENDING",
+              "ACTIVE",
+              "PASSED",
+              "FAILED",
+              "BLOCKED",
+              "SURVIVED",
+              "KILLED"
+            ]
+          },
+          "provenance": {
+            "$ref": "#/definitions/Provenance"
+          }
+        }
+      }
+    },
+    "traceability": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "statement",
+          "research_location",
+          "source_urls",
+          "provenance"
+        ],
+        "properties": {
+          "statement": {
+            "type": "string"
+          },
+          "research_location": {
+            "type": "string"
+          },
+          "source_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provenance": {
+            "$ref": "#/definitions/Provenance"
+          }
+        }
+      }
+    },
+    "investigation_type": {
+      "type": "string"
+    },
+    "research_status": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "UNVERIFIED",
+        "PENDING",
+        "ACTIVE",
+        "PASSED",
+        "FAILED",
+        "BLOCKED",
+        "SURVIVED",
+        "KILLED"
+      ]
+    },
+    "presentation": {
+      "type": "object",
+      "required": [
+        "investigation_summary",
+        "key_findings"
+      ],
+      "properties": {
+        "investigation_summary": {
+          "type": "string"
+        },
+        "key_findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "statement",
+              "classification",
+              "source_refs"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "statement": {
+                "type": "string"
+              },
+              "classification": {
+                "type": "string"
+              },
+              "source_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Provenance": {
+      "type": "object",
+      "required": [
+        "source_file",
+        "section",
+        "line_start",
+        "line_end"
+      ],
+      "properties": {
+        "source_file": {
+          "type": "string"
+        },
+        "section": {
+          "type": "string"
+        },
+        "line_start": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "line_end": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}
