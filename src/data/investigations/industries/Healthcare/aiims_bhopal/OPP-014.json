@@ -231,7 +231,7 @@
     {
       "id": "SRC-EXT-OPP-014-F8957FF7",
       "title": "PubMed — Causes of Delayed Transfers",
-      "url": "https://pubmed.ncbi.nlm.nih.gov/42326213/",
+      "url": "SRC-EXT-OPP-014-F8957FF7",
       "source_type": "EXTERNAL",
       "used_by": [
         "CP-OPP-014-01",
@@ -243,7 +243,7 @@
     {
       "id": "SRC-EXT-OPP-014-D83B68B2",
       "title": "PMC — Full study",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/",
+      "url": "SRC-EXT-OPP-014-D83B68B2",
       "source_type": "EXTERNAL",
       "used_by": [
         "CP-OPP-014-01",
@@ -255,7 +255,7 @@
     {
       "id": "SRC-EXT-OPP-014-894D8E0C",
       "title": "PMC — Delayed Transfer of Critically Ill Patients",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/",
+      "url": "SRC-EXT-OPP-014-894D8E0C",
       "source_type": "EXTERNAL",
       "used_by": [
         "CP-OPP-014-01",
@@ -267,7 +267,7 @@
     {
       "id": "SRC-EXT-OPP-014-62DA221D",
       "title": "PMC — Friction at Patient Handover",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8597691/",
+      "url": "SRC-EXT-OPP-014-62DA221D",
       "source_type": "EXTERNAL",
       "used_by": [
         "CP-OPP-014-02"
@@ -276,7 +276,7 @@
     {
       "id": "SRC-EXT-OPP-014-0690D5C0",
       "title": "PMC — Cooperation and Conflict in Intra-Hospital Transfers",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7024622/",
+      "url": "SRC-EXT-OPP-014-0690D5C0",
       "source_type": "EXTERNAL",
       "used_by": [
         "CP-OPP-014-02"
@@ -400,7 +400,7 @@
   "evidence": [
     {
       "id": "EV-014-001",
-      "statement": "### E-001 — Current 2026 AIIMS Bhopal Study\n\n[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\nDirect evidence: 5,922 ED admissions; 510 delayed boarders; 70% system causes; 169 ICU/HDU bed waits; 166 interdepartmental disputes; median 51-hour ED stay before eventual transfer.",
+      "statement": "### E-001 — Current 2026 AIIMS Bhopal Study\n\n[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\nDirect evidence: 5,922 ED admissions; 510 delayed boarders; 70% system causes; 169 ICU/HDU bed waits; 166 interdepartmental disputes; median 51-hour ED stay before eventual transfer.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-F8957FF7",
       "provenance": {
@@ -412,7 +412,7 @@
     },
     {
       "id": "EV-014-002",
-      "statement": "### E-002 — Full Study\n\n[PMC — Causes of Delayed Transfers](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)\n\nDirect workflow detail, cause definitions, ED scale and proposed hospital-wide interventions.",
+      "statement": "### E-002 — Full Study\n\n[PMC — Causes of Delayed Transfers](SRC-EXT-OPP-014-D83B68B2)\n\nDirect workflow detail, cause definitions, ED scale and proposed hospital-wide interventions.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-D83B68B2",
       "provenance": {
@@ -424,7 +424,7 @@
     },
     {
       "id": "EV-014-003",
-      "statement": "### E-003 — Indian ICU Transfer Evidence\n\n[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nIndependent Indian evidence: 67.3% delayed >30 minutes; 69.9-minute average transfer time; ED-related factors 54%; transfer time reduced 42.6% after feedback.",
+      "statement": "### E-003 — Indian ICU Transfer Evidence\n\n[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nIndependent Indian evidence: 67.3% delayed >30 minutes; 69.9-minute average transfer time; ED-related factors 54%; transfer time reduced 42.6% after feedback.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-894D8E0C",
       "provenance": {
@@ -436,7 +436,7 @@
     },
     {
       "id": "EV-014-004",
-      "statement": "### E-001 — Direct AIIMS Bhopal 2026 Study\n\n[PMC — Causes of Delayed Transfers From the Emergency Department to Speciality Units](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)\n\nDirect evidence for the 510 delayed patients, 169 ICU/HDU-bed waits, 166 interdepartmental disputes, 51-hour median pre-transfer ED stay, and proposed bed-dashboard / transfer-authority interventions.",
+      "statement": "### E-001 — Direct AIIMS Bhopal 2026 Study\n\n[PMC — Causes of Delayed Transfers From the Emergency Department to Speciality Units](SRC-EXT-OPP-014-D83B68B2)\n\nDirect evidence for the 510 delayed patients, 169 ICU/HDU-bed waits, 166 interdepartmental disputes, 51-hour median pre-transfer ED stay, and proposed bed-dashboard / transfer-authority interventions.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-D83B68B2",
       "provenance": {
@@ -448,7 +448,7 @@
     },
     {
       "id": "EV-014-005",
-      "statement": "### E-002 — PubMed Record\n\n[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\nIndependent bibliographic record for the AIIMS Bhopal study.",
+      "statement": "### E-002 — PubMed Record\n\n[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\nIndependent bibliographic record for the AIIMS Bhopal study.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-F8957FF7",
       "provenance": {
@@ -460,7 +460,7 @@
     },
     {
       "id": "EV-014-006",
-      "statement": "### E-003 — Indian ED-to-ICU Transfer Study\n\n[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nIndependent Indian evidence of ED-to-ICU transfer delays and reduction after regular feedback.",
+      "statement": "### E-003 — Indian ED-to-ICU Transfer Study\n\n[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nIndependent Indian evidence of ED-to-ICU transfer delays and reduction after regular feedback.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-894D8E0C",
       "provenance": {
@@ -472,7 +472,7 @@
     },
     {
       "id": "EV-014-007",
-      "statement": "### E-004 — Transfer Conflict Research\n\n[PMC — Friction at Patient Handover](https://pmc.ncbi.nlm.nih.gov/articles/PMC8597691/)\n\nQualitative evidence of interdepartmental friction during ED/internal-medicine handover.",
+      "statement": "### E-004 — Transfer Conflict Research\n\n[PMC — Friction at Patient Handover](SRC-EXT-OPP-014-62DA221D)\n\nQualitative evidence of interdepartmental friction during ED/internal-medicine handover.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-62DA221D",
       "provenance": {
@@ -484,7 +484,7 @@
     },
     {
       "id": "EV-014-008",
-      "statement": "### E-005 — Intra-Hospital Transfer Cooperation\n\n[PMC — Cooperation and Conflict in Intra-Hospital Transfers](https://pmc.ncbi.nlm.nih.gov/articles/PMC7024622/)\n\nEvidence that acceptance policies, receiving-provider involvement and responsibility boundaries can affect patient disposition and transfer.\n\n---",
+      "statement": "### E-005 — Intra-Hospital Transfer Cooperation\n\n[PMC — Cooperation and Conflict in Intra-Hospital Transfers](SRC-EXT-OPP-014-0690D5C0)\n\nEvidence that acceptance policies, receiving-provider involvement and responsibility boundaries can affect patient disposition and transfer.\n\n---",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-0690D5C0",
       "provenance": {
@@ -496,7 +496,7 @@
     },
     {
       "id": "EV-014-009",
-      "statement": "### E-001 — AIIMS Bhopal 2026 Study\n\n[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\nDirect evidence: 5,922 ED admissions; 510 delayed cases; 438 eventually transferred; median 51-hour pre-transfer ED stay; 169 ICU/HDU bed waits; 166 interdepartmental disputes.",
+      "statement": "### E-001 — AIIMS Bhopal 2026 Study\n\n[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\nDirect evidence: 5,922 ED admissions; 510 delayed cases; 438 eventually transferred; median 51-hour pre-transfer ED stay; 169 ICU/HDU bed waits; 166 interdepartmental disputes.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-F8957FF7",
       "provenance": {
@@ -508,7 +508,7 @@
     },
     {
       "id": "EV-014-010",
-      "statement": "### E-002 — Full AIIMS Bhopal Study\n\n[PMC — Causes of Delayed Transfers](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)\n\nDirect cause classification and delay-duration distribution.",
+      "statement": "### E-002 — Full AIIMS Bhopal Study\n\n[PMC — Causes of Delayed Transfers](SRC-EXT-OPP-014-D83B68B2)\n\nDirect cause classification and delay-duration distribution.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-D83B68B2",
       "provenance": {
@@ -520,7 +520,7 @@
     },
     {
       "id": "EV-014-011",
-      "statement": "### E-003 — Indian ED-to-ICU Study\n\n[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nIndependent evidence of transfer delay and reduction after monthly feedback.\n\n---",
+      "statement": "### E-003 — Indian ED-to-ICU Study\n\n[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nIndependent evidence of transfer delay and reduction after monthly feedback.\n\n---",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-894D8E0C",
       "provenance": {
@@ -532,7 +532,7 @@
     },
     {
       "id": "EV-014-012",
-      "statement": "### E-001 — Direct AIIMS Bhopal 2026 Study\n\n[PMC — Causes of Delayed Transfers From the Emergency Department to Speciality Units](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)\n\nDirect evidence for the 5,922 admissions, 510 delayed cases, 169 ICU/HDU waits, 166 interdepartmental disputes, 51-hour median pre-transfer ED stay and proposed operational interventions.",
+      "statement": "### E-001 — Direct AIIMS Bhopal 2026 Study\n\n[PMC — Causes of Delayed Transfers From the Emergency Department to Speciality Units](SRC-EXT-OPP-014-D83B68B2)\n\nDirect evidence for the 5,922 admissions, 510 delayed cases, 169 ICU/HDU waits, 166 interdepartmental disputes, 51-hour median pre-transfer ED stay and proposed operational interventions.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-D83B68B2",
       "provenance": {
@@ -544,7 +544,7 @@
     },
     {
       "id": "EV-014-013",
-      "statement": "### E-002 — PubMed Record\n\n[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\nIndependent bibliographic source for the same 2026 study.",
+      "statement": "### E-002 — PubMed Record\n\n[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\nIndependent bibliographic source for the same 2026 study.",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-F8957FF7",
       "provenance": {
@@ -556,7 +556,7 @@
     },
     {
       "id": "EV-014-014",
-      "statement": "### E-003 — Indian Transfer Evidence\n\n[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nIndependent Indian evidence of ED-to-ICU transfer delay and improvement following operational feedback.\n\n---",
+      "statement": "### E-003 — Indian Transfer Evidence\n\n[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nIndependent Indian evidence of ED-to-ICU transfer delay and improvement following operational feedback.\n\n---",
       "classification": "DIRECT OR EXTERNAL EVIDENCE",
       "source": "SRC-EXT-OPP-014-894D8E0C",
       "provenance": {
@@ -693,11 +693,11 @@
       }
     },
     {
-      "statement": "A prospective study published in May 2026 at AIIMS Bhopal provides direct, current evidence of prolonged emergency-department boarding caused predominantly by system bottlenecks.\n\nThe ED has **31 beds**, including 10 paediatric beds, and handles approximately **193 visits/day**. The study enrolled **510 adults** who remained in the ED for more than 24 hours without speciality transfer.\n\n[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\n[PMC — Full study](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)",
+      "statement": "A prospective study published in May 2026 at AIIMS Bhopal provides direct, current evidence of prolonged emergency-department boarding caused predominantly by system bottlenecks.\n\nThe ED has **31 beds**, including 10 paediatric beds, and handles approximately **193 visits/day**. The study enrolled **510 adults** who remained in the ED for more than 24 hours without speciality transfer.\n\n[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\n[PMC — Full study](SRC-EXT-OPP-014-D83B68B2)",
       "research_location": "OPP-014-01.md#Discovery",
       "source_urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/42326213/",
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/"
+        "SRC-EXT-OPP-014-F8957FF7",
+        "SRC-EXT-OPP-014-D83B68B2"
       ],
       "provenance": {
         "source_file": "OPP-014-01.md",
@@ -707,10 +707,10 @@
       }
     },
     {
-      "statement": "During six months:\n\n- **5,922 ED admissions**\n- **510 patients (8.6%)** had delayed transfer/boarding >24 hours\n- **438 (85.9%)** eventually transferred\n- **72 (14.1%)** did not transfer during the observed pathway\n- median ED stay before eventual transfer: **51 hours**\n\n[PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)",
+      "statement": "During six months:\n\n- **5,922 ED admissions**\n- **510 patients (8.6%)** had delayed transfer/boarding >24 hours\n- **438 (85.9%)** eventually transferred\n- **72 (14.1%)** did not transfer during the observed pathway\n- median ED stay before eventual transfer: **51 hours**\n\n[PMC](SRC-EXT-OPP-014-D83B68B2)",
       "research_location": "OPP-014-01.md#Direct Evidence",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/"
+        "SRC-EXT-OPP-014-D83B68B2"
       ],
       "provenance": {
         "source_file": "OPP-014-01.md",
@@ -742,10 +742,10 @@
       }
     },
     {
-      "statement": "The largest system cause was waiting for an ICU/HDU bed under the designated speciality: **169 cases (33.1%)**.\n\nThe potential exception state is:\n\n```text\nSPECIALITY NEED\n      ↓\nICU / HDU REQUIRED\n      ↓\nBED AVAILABLE?\n      ↓ NO\nWAIT\n      ↓\nWHEN WILL BED OPEN?\n      ↓\nWHO IS TRACKING?\n      ↓\nESCALATION?\n```\n\nThe study itself recommends hospital-wide bed dashboards and dedicated surge ICU beds. [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)",
+      "statement": "The largest system cause was waiting for an ICU/HDU bed under the designated speciality: **169 cases (33.1%)**.\n\nThe potential exception state is:\n\n```text\nSPECIALITY NEED\n      ↓\nICU / HDU REQUIRED\n      ↓\nBED AVAILABLE?\n      ↓ NO\nWAIT\n      ↓\nWHEN WILL BED OPEN?\n      ↓\nWHO IS TRACKING?\n      ↓\nESCALATION?\n```\n\nThe study itself recommends hospital-wide bed dashboards and dedicated surge ICU beds. [PMC](SRC-EXT-OPP-014-D83B68B2)",
       "research_location": "OPP-014-01.md#Exception A — ICU/HDU Bed Wait",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/"
+        "SRC-EXT-OPP-014-D83B68B2"
       ],
       "provenance": {
         "source_file": "OPP-014-01.md",
@@ -777,10 +777,10 @@
       }
     },
     {
-      "statement": "Among the 438 delayed patients who eventually transferred:\n\n- median ED stay before transfer: **51 hours**\n- mean hospital LOS: **10.5 days**\n- 71 deaths (16.2%)\n- 66 left against medical advice (15.1%)\n\nThe study reports longer median ED boarding among patients who died or left against medical advice (**72 vs 48 hours**), but did not perform a formal statistical comparison for this relationship.\n\nTherefore **do not claim that transfer delay caused these deaths**.\n\n[PubMed](https://pubmed.ncbi.nlm.nih.gov/42326213/)",
+      "statement": "Among the 438 delayed patients who eventually transferred:\n\n- median ED stay before transfer: **51 hours**\n- mean hospital LOS: **10.5 days**\n- 71 deaths (16.2%)\n- 66 left against medical advice (15.1%)\n\nThe study reports longer median ED boarding among patients who died or left against medical advice (**72 vs 48 hours**), but did not perform a formal statistical comparison for this relationship.\n\nTherefore **do not claim that transfer delay caused these deaths**.\n\n[PubMed](SRC-EXT-OPP-014-F8957FF7)",
       "research_location": "OPP-014-01.md#Consequence",
       "source_urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/42326213/"
+        "SRC-EXT-OPP-014-F8957FF7"
       ],
       "provenance": {
         "source_file": "OPP-014-01.md",
@@ -812,10 +812,10 @@
       }
     },
     {
-      "statement": "A 2023 Indian prospective study of ED-to-ICU transfers found **35 of 52 patients (67.3%)** were not transferred within 30 minutes; average ED-to-ICU transfer time was **69.9 ± 62.5 minutes**, with ED-related factors accounting for 54% of delays. Monthly feedback reduced transfer time by 42.6%.\n\n[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nThis independently supports recurrence of the transfer-delay problem in Indian emergency care.",
+      "statement": "A 2023 Indian prospective study of ED-to-ICU transfers found **35 of 52 patients (67.3%)** were not transferred within 30 minutes; average ED-to-ICU transfer time was **69.9 ± 62.5 minutes**, with ED-related factors accounting for 54% of delays. Monthly feedback reduced transfer time by 42.6%.\n\n[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nThis independently supports recurrence of the transfer-delay problem in Indian emergency care.",
       "research_location": "OPP-014-01.md#Industry Recurrence",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/"
+        "SRC-EXT-OPP-014-894D8E0C"
       ],
       "provenance": {
         "source_file": "OPP-014-01.md",
@@ -869,10 +869,10 @@
       }
     },
     {
-      "statement": "[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\nDirect evidence: 5,922 ED admissions; 510 delayed boarders; 70% system causes; 169 ICU/HDU bed waits; 166 interdepartmental disputes; median 51-hour ED stay before eventual transfer.",
+      "statement": "[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\nDirect evidence: 5,922 ED admissions; 510 delayed boarders; 70% system causes; 169 ICU/HDU bed waits; 166 interdepartmental disputes; median 51-hour ED stay before eventual transfer.",
       "research_location": "OPP-014-01.md#E-001 — Current 2026 AIIMS Bhopal Study",
       "source_urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/42326213/"
+        "SRC-EXT-OPP-014-F8957FF7"
       ],
       "provenance": {
         "source_file": "OPP-014-01.md",
@@ -882,10 +882,10 @@
       }
     },
     {
-      "statement": "[PMC — Causes of Delayed Transfers](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)\n\nDirect workflow detail, cause definitions, ED scale and proposed hospital-wide interventions.",
+      "statement": "[PMC — Causes of Delayed Transfers](SRC-EXT-OPP-014-D83B68B2)\n\nDirect workflow detail, cause definitions, ED scale and proposed hospital-wide interventions.",
       "research_location": "OPP-014-01.md#E-002 — Full Study",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/"
+        "SRC-EXT-OPP-014-D83B68B2"
       ],
       "provenance": {
         "source_file": "OPP-014-01.md",
@@ -895,10 +895,10 @@
       }
     },
     {
-      "statement": "[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nIndependent Indian evidence: 67.3% delayed >30 minutes; 69.9-minute average transfer time; ED-related factors 54%; transfer time reduced 42.6% after feedback.",
+      "statement": "[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nIndependent Indian evidence: 67.3% delayed >30 minutes; 69.9-minute average transfer time; ED-related factors 54%; transfer time reduced 42.6% after feedback.",
       "research_location": "OPP-014-01.md#E-003 — Indian ICU Transfer Evidence",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/"
+        "SRC-EXT-OPP-014-894D8E0C"
       ],
       "provenance": {
         "source_file": "OPP-014-01.md",
@@ -1183,10 +1183,10 @@
       }
     },
     {
-      "statement": "[PMC — Causes of Delayed Transfers From the Emergency Department to Speciality Units](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)\n\nDirect evidence for the 510 delayed patients, 169 ICU/HDU-bed waits, 166 interdepartmental disputes, 51-hour median pre-transfer ED stay, and proposed bed-dashboard / transfer-authority interventions.",
+      "statement": "[PMC — Causes of Delayed Transfers From the Emergency Department to Speciality Units](SRC-EXT-OPP-014-D83B68B2)\n\nDirect evidence for the 510 delayed patients, 169 ICU/HDU-bed waits, 166 interdepartmental disputes, 51-hour median pre-transfer ED stay, and proposed bed-dashboard / transfer-authority interventions.",
       "research_location": "OPP-014-02.md#E-001 — Direct AIIMS Bhopal 2026 Study",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/"
+        "SRC-EXT-OPP-014-D83B68B2"
       ],
       "provenance": {
         "source_file": "OPP-014-02.md",
@@ -1196,10 +1196,10 @@
       }
     },
     {
-      "statement": "[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\nIndependent bibliographic record for the AIIMS Bhopal study.",
+      "statement": "[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\nIndependent bibliographic record for the AIIMS Bhopal study.",
       "research_location": "OPP-014-02.md#E-002 — PubMed Record",
       "source_urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/42326213/"
+        "SRC-EXT-OPP-014-F8957FF7"
       ],
       "provenance": {
         "source_file": "OPP-014-02.md",
@@ -1209,10 +1209,10 @@
       }
     },
     {
-      "statement": "[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nIndependent Indian evidence of ED-to-ICU transfer delays and reduction after regular feedback.",
+      "statement": "[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nIndependent Indian evidence of ED-to-ICU transfer delays and reduction after regular feedback.",
       "research_location": "OPP-014-02.md#E-003 — Indian ED-to-ICU Transfer Study",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/"
+        "SRC-EXT-OPP-014-894D8E0C"
       ],
       "provenance": {
         "source_file": "OPP-014-02.md",
@@ -1222,10 +1222,10 @@
       }
     },
     {
-      "statement": "[PMC — Friction at Patient Handover](https://pmc.ncbi.nlm.nih.gov/articles/PMC8597691/)\n\nQualitative evidence of interdepartmental friction during ED/internal-medicine handover.",
+      "statement": "[PMC — Friction at Patient Handover](SRC-EXT-OPP-014-62DA221D)\n\nQualitative evidence of interdepartmental friction during ED/internal-medicine handover.",
       "research_location": "OPP-014-02.md#E-004 — Transfer Conflict Research",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC8597691/"
+        "SRC-EXT-OPP-014-62DA221D"
       ],
       "provenance": {
         "source_file": "OPP-014-02.md",
@@ -1235,10 +1235,10 @@
       }
     },
     {
-      "statement": "[PMC — Cooperation and Conflict in Intra-Hospital Transfers](https://pmc.ncbi.nlm.nih.gov/articles/PMC7024622/)\n\nEvidence that acceptance policies, receiving-provider involvement and responsibility boundaries can affect patient disposition and transfer.\n\n---",
+      "statement": "[PMC — Cooperation and Conflict in Intra-Hospital Transfers](SRC-EXT-OPP-014-0690D5C0)\n\nEvidence that acceptance policies, receiving-provider involvement and responsibility boundaries can affect patient disposition and transfer.\n\n---",
       "research_location": "OPP-014-02.md#E-005 — Intra-Hospital Transfer Cooperation",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC7024622/"
+        "SRC-EXT-OPP-014-0690D5C0"
       ],
       "provenance": {
         "source_file": "OPP-014-02.md",
@@ -1567,10 +1567,10 @@
       }
     },
     {
-      "statement": "[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\nDirect evidence: 5,922 ED admissions; 510 delayed cases; 438 eventually transferred; median 51-hour pre-transfer ED stay; 169 ICU/HDU bed waits; 166 interdepartmental disputes.",
+      "statement": "[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\nDirect evidence: 5,922 ED admissions; 510 delayed cases; 438 eventually transferred; median 51-hour pre-transfer ED stay; 169 ICU/HDU bed waits; 166 interdepartmental disputes.",
       "research_location": "OPP-014-03.md#E-001 — AIIMS Bhopal 2026 Study",
       "source_urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/42326213/"
+        "SRC-EXT-OPP-014-F8957FF7"
       ],
       "provenance": {
         "source_file": "OPP-014-03.md",
@@ -1580,10 +1580,10 @@
       }
     },
     {
-      "statement": "[PMC — Causes of Delayed Transfers](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)\n\nDirect cause classification and delay-duration distribution.",
+      "statement": "[PMC — Causes of Delayed Transfers](SRC-EXT-OPP-014-D83B68B2)\n\nDirect cause classification and delay-duration distribution.",
       "research_location": "OPP-014-03.md#E-002 — Full AIIMS Bhopal Study",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/"
+        "SRC-EXT-OPP-014-D83B68B2"
       ],
       "provenance": {
         "source_file": "OPP-014-03.md",
@@ -1593,10 +1593,10 @@
       }
     },
     {
-      "statement": "[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nIndependent evidence of transfer delay and reduction after monthly feedback.\n\n---",
+      "statement": "[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nIndependent evidence of transfer delay and reduction after monthly feedback.\n\n---",
       "research_location": "OPP-014-03.md#E-003 — Indian ED-to-ICU Study",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/"
+        "SRC-EXT-OPP-014-894D8E0C"
       ],
       "provenance": {
         "source_file": "OPP-014-03.md",
@@ -2013,10 +2013,10 @@
       }
     },
     {
-      "statement": "[PMC — Causes of Delayed Transfers From the Emergency Department to Speciality Units](https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/)\n\nDirect evidence for the 5,922 admissions, 510 delayed cases, 169 ICU/HDU waits, 166 interdepartmental disputes, 51-hour median pre-transfer ED stay and proposed operational interventions.",
+      "statement": "[PMC — Causes of Delayed Transfers From the Emergency Department to Speciality Units](SRC-EXT-OPP-014-D83B68B2)\n\nDirect evidence for the 5,922 admissions, 510 delayed cases, 169 ICU/HDU waits, 166 interdepartmental disputes, 51-hour median pre-transfer ED stay and proposed operational interventions.",
       "research_location": "OPP-014-04.md#E-001 — Direct AIIMS Bhopal 2026 Study",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13275199/"
+        "SRC-EXT-OPP-014-D83B68B2"
       ],
       "provenance": {
         "source_file": "OPP-014-04.md",
@@ -2026,10 +2026,10 @@
       }
     },
     {
-      "statement": "[PubMed — Causes of Delayed Transfers](https://pubmed.ncbi.nlm.nih.gov/42326213/)\n\nIndependent bibliographic source for the same 2026 study.",
+      "statement": "[PubMed — Causes of Delayed Transfers](SRC-EXT-OPP-014-F8957FF7)\n\nIndependent bibliographic source for the same 2026 study.",
       "research_location": "OPP-014-04.md#E-002 — PubMed Record",
       "source_urls": [
-        "https://pubmed.ncbi.nlm.nih.gov/42326213/"
+        "SRC-EXT-OPP-014-F8957FF7"
       ],
       "provenance": {
         "source_file": "OPP-014-04.md",
@@ -2039,10 +2039,10 @@
       }
     },
     {
-      "statement": "[PMC — Delayed Transfer of Critically Ill Patients](https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/)\n\nIndependent Indian evidence of ED-to-ICU transfer delay and improvement following operational feedback.\n\n---",
+      "statement": "[PMC — Delayed Transfer of Critically Ill Patients](SRC-EXT-OPP-014-894D8E0C)\n\nIndependent Indian evidence of ED-to-ICU transfer delay and improvement following operational feedback.\n\n---",
       "research_location": "OPP-014-04.md#E-003 — Indian Transfer Evidence",
       "source_urls": [
-        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10452780/"
+        "SRC-EXT-OPP-014-894D8E0C"
       ],
       "provenance": {
         "source_file": "OPP-014-04.md",

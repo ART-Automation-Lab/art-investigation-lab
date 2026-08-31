@@ -1,21 +1,20 @@
 # Repository Current State
 
-Last updated: 2026-08-27
+Last updated: 2026-08-31
 
 ## What this repository does
 
-ART Investigation Lab is a React/Vite application for presenting and exploring structured investigation briefs.
+ART Investigation Lab is a Next.js application for presenting and exploring structured investigation briefs.
 It renders investigation data from repository JSON files into three main product surfaces:
 
-- Homepage
-- Walkthrough
-- Workflow
+- Homepage (`/`)
+- Walkthrough (`/walkthrough`)
+- Workflow (`/workflow`)
 
 ## Major architecture
 
-- `src/main.tsx` mounts the app and wraps it in `BrowserRouter`.
-- `src/App.tsx` defines the top-level routes and composes the shared shell.
-- `src/components/Header/` contains the global header.
+- `src/app/` defines the Next.js App Router routes (`layout.tsx`, `page.tsx`, `walkthrough/page.tsx`, `workflow/page.tsx`).
+- `src/components/Header/` contains the global header shell.
 - `src/features/home/` contains the landing page.
 - `src/features/core/walkthrough/` contains the walkthrough experience, including Markdown rendering and presentation helpers.
 - `src/features/core/workflow/` contains the workflow canvas.
@@ -28,10 +27,10 @@ It renders investigation data from repository JSON files into three main product
 ## Important data flows
 
 1. InvestigationBrief JSON files are stored under `src/data/investigations/industries/...`.
-2. `src/data/investigationBriefLoader.ts` loads the JSON files with Vite `import.meta.glob`.
+2. `src/data/investigationBriefLoader.ts` loads the JSON files.
 3. `src/data/investigationBriefValidator.ts` validates the loaded JSON against the InvestigationBrief shape.
-4. The app routes render the validated briefs in the homepage, walkthrough, and workflow views.
-5. The build script produces a production bundle and a standalone package.
+4. Next.js routes render the validated briefs in the homepage, walkthrough, and workflow views.
+5. The build script produces a static export (`out/`) and a single-file standalone package (`standalone.html`).
 
 ## Source-of-truth boundaries
 
@@ -42,7 +41,7 @@ It renders investigation data from repository JSON files into three main product
 
 ## Important directories
 
-- `src/` — application code, data loading, validation, and UI features
+- `src/` — application code, App Router, data loading, validation, and UI features
 - `src/data/investigations/` — investigation JSON inputs used by the UI
 - `contracts/` — schema and contract documentation
 - `deployment/` — deployable static assets and packaging files
@@ -52,8 +51,8 @@ It renders investigation data from repository JSON files into three main product
 
 ## Build and test state
 
-- The repository is a Vite + TypeScript app.
-- `npm run build` runs TypeScript, Vite production build, and the standalone packaging step.
+- The repository is a Next.js (App Router) + TypeScript app with `output: 'export'`.
+- `npm run build` runs Next.js build (`next build`), generating `out/`, and runs `python3 scripts/make_standalone.py` to create `standalone.html`.
 - `npm run lint` runs ESLint.
 - `npm run aoi:validate` validates AOI integrity.
 

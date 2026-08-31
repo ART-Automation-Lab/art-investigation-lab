@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'next/navigation';
 import './Walkthrough.css';
 import { loadAllInvestigationBriefs } from '../../../data/investigationBriefLoader';
 import type { InvestigationBrief, Provenance, IntelligenceObject } from '../../../types/investigationBrief';
@@ -7,7 +9,6 @@ import { NOT_PROVIDED, PresentationText, SourceAuditList, SourceIndicator, Prove
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { InvestigationSignalStrip } from './sections/InvestigationSignalStrip';
 
-const ALL_BRIEFS = loadAllInvestigationBriefs();
 
 // --------------------------------------------------
 // UTILS
@@ -1320,15 +1321,52 @@ function ReusableIntelligenceSidebar({ brief, isOpen, onToggle }: { brief: Inves
 // --------------------------------------------------
 
 export function Walkthrough() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const selectedIndustry = searchParams.get('industry')?.trim() ?? '';
+  const [allBriefs, setAllBriefs] = useState<InvestigationBrief[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      setAllBriefs(loadAllInvestigationBriefs());
+      setLoadError(null);
+    } catch (error) {
+      console.error('Failed to load investigation briefs for walkthrough:', error);
+      setLoadError('Unable to load investigation briefs right now.');
+    }
+  }, []);
+
+  const loadErrorBanner = loadError ? (
+    <section className="investigation-hero" style={{ padding: '48px', minHeight: '60vh' }}>
+      <div className="hero-grid">
+        <div className="hero-main">
+          <div className="hero-id-row">
+            <span className="hero-id-pill">UNAVAILABLE</span>
+            <span className="hero-type-text">LOAD ERROR</span>
+          </div>
+          <h1 className="hero-title">Walkthrough unavailable</h1>
+          <div className="hero-company-line">{loadError}</div>
+          <div className="hero-meta-row">
+            <div className="hero-meta-item">
+              <span className="hero-meta-label">What happened</span>
+              <div className="hero-meta-value">One or more investigation briefs failed validation during load.</div>
+            </div>
+            <div className="hero-meta-item">
+              <span className="hero-meta-label">Next step</span>
+              <div className="hero-meta-value">Fix the invalid brief data, then refresh the page.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  ) : null;
 
   const industryBriefs = useMemo(() => {
-    if (!selectedIndustry) return ALL_BRIEFS;
-    return ALL_BRIEFS.filter(b =>
+    if (!selectedIndustry) return allBriefs;
+    return allBriefs.filter(b =>
       b.industry === selectedIndustry || b.industry.startsWith(selectedIndustry + ' /')
     );
-  }, [selectedIndustry]);
+  }, [allBriefs, selectedIndustry]);
 
   const companies = useMemo(
     () => [...new Set(industryBriefs.map(b => b.company))],
@@ -1367,6 +1405,7 @@ export function Walkthrough() {
 
   return (
     <div className="investigation-workspace">
+      {loadErrorBanner}
       <div className="workspace-layout">
         {brief && (
           <ReasoningAuditPanel

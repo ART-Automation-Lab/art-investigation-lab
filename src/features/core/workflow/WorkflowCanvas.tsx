@@ -1,6 +1,8 @@
+'use client';
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './WorkflowCanvas.css';
 import type { ResearchStatus } from '../../../types/markdownContract';
 import type { AoiOpportunity, WorkflowNode } from '../../../types/aoiSemantic';
@@ -219,7 +221,7 @@ function CapabilitySurface({ nodes }: { nodes: WorkflowNode[] }) {
 }
 
 export function WorkflowCanvas({ investigation, onReturnToNarrative }: WorkflowCanvasProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const nodes = investigation.workflows?.[0]?.nodes ?? [];
   const nodeMap = useMemo(() => new Map(nodes.map(node => [node.id, node])), [nodes]);
   const columns = useMemo(() => buildColumns(nodes), [nodes]);
@@ -311,7 +313,7 @@ export function WorkflowCanvas({ investigation, onReturnToNarrative }: WorkflowC
           </p>
           <button
             className="ap-detail-btn"
-            onClick={() => onReturnToNarrative ? onReturnToNarrative() : navigate('/walkthrough')}
+            onClick={() => onReturnToNarrative ? onReturnToNarrative() : router.push('/walkthrough')}
             style={{ margin: '0 auto', display: 'inline-block' }}
           >
             RETURN TO WALKTHROUGH &rarr;

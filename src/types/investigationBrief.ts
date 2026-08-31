@@ -2,9 +2,10 @@ export type ResearchStatus = 'UNKNOWN' | 'UNVERIFIED' | 'PENDING' | 'ACTIVE' | '
 
 export interface Provenance {
   source_file: string;
-  section: string;
+  section: string | null;
   line_start: number | null;
   line_end: number | null;
+  url?: string | null;
 }
 
 export interface InvestigationSource {
@@ -33,6 +34,8 @@ export type IntelligenceStatus = 'ACTIVE' | 'EXPERIMENTAL' | 'RETIRED';
 export type ConfidenceLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type ReusePotential = 'HIGH' | 'MEDIUM' | 'LOW';
 export type EpistemicClassification = 'EVIDENCE' | 'CLAIM' | 'INFERENCE' | 'HYPOTHESIS' | 'FALSIFICATION' | 'RESULT' | 'DECISION';
+export type WorkflowType = 'OBSERVED' | 'RECONSTRUCTED' | 'PROPOSED_ART';
+export type RelationshipType = 'CONTRADICTS' | 'SUPPORTS' | 'DEPENDS_ON';
 
 export interface IntelligenceObject {
   id: string;
@@ -60,95 +63,161 @@ export interface IntelligenceObject {
   provenance: Provenance;
 }
 
+export interface PresentationKeyFinding {
+  id: string;
+  statement: string;
+  classification: EpistemicClassification;
+  source_refs: string[];
+}
+
+export interface Presentation {
+  investigation_summary: string;
+  key_findings: PresentationKeyFinding[];
+}
+
+export interface Decision {
+  decision: string;
+  reason: string;
+  reusable_intelligence: IntelligenceObject[];
+  provenance: Provenance;
+}
+
 export interface InvestigationCheckpoint {
   id: string;
   title: string;
-  status?: string;
-  investigation_question?: string;
-  tested: string;
-  found: string;
+  status?: string | null;
+  investigation_question?: string | null;
+  tested?: string | null;
+  found?: string | null;
   what_changed: string;
-  resulting_state: string;
-  evidence_refs?: string[];
-  source_refs?: string[];
+  resulting_state?: string | null;
+  evidence_refs?: string[] | null;
+  source_refs?: string[] | null;
+  provenance: Provenance;
+}
+
+export interface InvestigationEvidence {
+  id: string;
+  statement: string;
+  classification: string;
+  source: string;
+  provenance: Provenance;
+}
+
+export interface InvestigationClaim {
+  id: string;
+  statement: string;
+  evidence_basis: string[];
+  provenance: Provenance;
+}
+
+export interface InvestigationInference {
+  id: string;
+  statement: string;
+  basis: string[];
+  implication: string;
+  provenance: Provenance;
+}
+
+export interface InvestigationHypothesis {
+  id: string;
+  statement: string;
+  status: ResearchStatus;
+  supporting_basis: string[];
+  falsification_basis: string[];
+  provenance: Provenance;
+}
+
+export interface InvestigationResult {
+  id: string;
+  statement: string;
+  status: ResearchStatus;
+  provenance: Provenance;
+}
+
+export interface Traceability {
+  statement: string;
+  research_location: string;
+  source_urls: string[];
+  provenance: Provenance;
+}
+
+export interface InvestigationSection {
+  id: string;
+  title: string;
+  summary?: string | null;
+  evidence_refs?: string[] | null;
+  source_refs?: string[] | null;
+  provenance: Provenance;
+}
+
+export interface WorkflowStep {
+  id: string;
+  title: string;
+  description: string;
+  actor?: string | null;
+  system?: string | null;
+  handoff_to?: string | null;
+  state_information?: string | null;
+  exception_refs?: string[] | null;
+  evidence_refs?: string[] | null;
+  source_refs?: string[] | null;
+  provenance: Provenance;
+}
+
+export interface InvestigationWorkflow {
+  id: string;
+  title: string;
+  workflow_type: WorkflowType;
+  summary?: string | null;
+  steps: WorkflowStep[];
+  nodes?: WorkflowStep[] | null;
+  actors?: string[] | null;
+  systems?: string[] | null;
+  safety_boundaries?: string[] | null;
+  source_refs?: string[] | null;
+  provenance: Provenance;
+}
+
+export interface InvestigationRelationship {
+  id: string;
+  source_id: string;
+  target_id: string;
+  relationship_type: RelationshipType;
+  provenance: Provenance;
+}
+
+export interface InvestigationFalsification {
+  statement: string;
+  targetRef?: string | null;
+  whatWasTested?: string | null;
+  evidence?: string | null;
+  outcome: 'KILLED' | 'WEAKENED' | 'UNRESOLVED' | 'SURVIVED';
+  reason?: string | null;
+  basis: string[];
   provenance: Provenance;
 }
 
 export interface InvestigationBrief {
-  title(arg0: string, title: any): unknown;
-  investigationId(arg0: string, investigationId: any): unknown;
-  overview: any;
-  progression: any;
-  reusableIntelligence: any;
-  provenance: any;
   investigation_id: string;
   company: string;
   industry: string;
   opportunity: string;
   investigation_type: string;
   research_status: ResearchStatus;
-  presentation: {
-    investigation_summary: string;
-    key_findings: {
-      id: string;
-      statement: string;
-      classification: EpistemicClassification;
-      source_refs: string[];
-    }[];
-  };
-  decision: {
-    decision: string;
-    reason: string;
-    reusable_intelligence: IntelligenceObject[];
-    provenance: Provenance;
-  };
+  presentation: Presentation;
+  decision: Decision;
   primary_question: string;
   sources: InvestigationSource[];
   checkpoints: InvestigationCheckpoint[];
-  evidence: {
-    id: string;
-    statement: string;
-    classification: string;
-    source: string;
-    provenance: Provenance;
-  }[];
-  claims: {
-    id: string;
-    statement: string;
-    evidence_basis: string[];
-    provenance: Provenance;
-  }[];
-  inferences: {
-    id: string;
-    statement: string;
-    basis: string[];
-    implication: string;
-    provenance: Provenance;
-  }[];
-  hypotheses: {
-    id: string;
-    statement: string;
-    status: ResearchStatus;
-    supporting_basis: string[];
-    falsification_basis: string[];
-    provenance: Provenance;
-  }[];
-  results: {
-    id: string;
-    statement: string;
-    status: ResearchStatus;
-    provenance: Provenance;
-  }[];
-  falsification?: {
-    statement: string;
-    outcome: string;
-    basis: string[];
-    provenance: Provenance;
-  }[];
-  traceability: {
-    statement: string;
-    research_location: string;
-    source_urls: string[];
-    provenance: Provenance;
-  }[];
+  evidence: InvestigationEvidence[];
+  claims: InvestigationClaim[];
+  inferences: InvestigationInference[];
+  hypotheses: InvestigationHypothesis[];
+  results: InvestigationResult[];
+  traceability: Traceability[];
+  workflows?: InvestigationWorkflow[];
+  sections?: InvestigationSection[];
+  relationships?: InvestigationRelationship[];
+  falsification?: InvestigationFalsification[];
 }

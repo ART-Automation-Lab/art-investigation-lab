@@ -1032,7 +1032,7 @@
   "falsification": [
     {
       "statement": "Kill the **Fortis-specific opportunity** if validation establishes:\n\n```text\nAUTOMATIC CRITICAL-VALUE DETECTION\n+\nAUTOMATIC ROUTING\n+\nDELIVERY CONFIRMATION\n+\nACKNOWLEDGEMENT TRACKING\n+\nAUTOMATIC ESCALATION\n+\nALTERNATE-OWNER ROUTING\n+\nCLOSURE AUDIT\n+\nLOW UNRESOLVED VOLUME\n```\n\nThe broader industry opportunity may still survive for lower-maturity hospitals.\n\n---",
-      "outcome": "14. Kill Conditions",
+      "outcome": "KILLED",
       "basis": [
         "EV-012-023",
         "EV-012-024",
