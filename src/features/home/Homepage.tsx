@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import './Homepage.css';
 
 type ProcessStepProps = {
@@ -44,8 +43,6 @@ function ProcessStep({ number, title, description }: ProcessStepProps) {
 }
 
 export function Homepage() {
-  const router = useRouter();
-
   return (
     <div className="homepage-shell">
       <section className="homepage-hero" aria-labelledby="home-title">
@@ -56,9 +53,9 @@ export function Homepage() {
         </p>
 
         <div className="homepage-actions">
-          <button className="home-button home-button-primary" onClick={() => router.push('/workflow')}>
+          <Link className="home-button home-button-primary" href="/start-contributing">
             Start Contributing
-          </button>
+          </Link>
           <Link className="home-button home-button-secondary" href="/walkthrough">
             Explore Investigations
           </Link>
@@ -72,7 +69,7 @@ export function Homepage() {
         </div>
 
         <div className="process-rail" aria-label="Process steps">
-          {PROCESS_STEPS.map(step => (
+          {PROCESS_STEPS.map((step) => (
             <ProcessStep
               key={step.number}
               number={step.number}
@@ -83,16 +80,6 @@ export function Homepage() {
         </div>
       </section>
 
-      <footer className="homepage-footer">
-        <div>
-          <p className="homepage-kicker">ART Investigation Lab</p>
-          <p className="homepage-footer-copy">Collaborative intelligence powered by A Realtime Tech.</p>
-        </div>
-
-        <button className="home-button home-button-primary" onClick={() => router.push('/workflow')}>
-          Start Contributing
-        </button>
-      </footer>
     </div>
   );
 }

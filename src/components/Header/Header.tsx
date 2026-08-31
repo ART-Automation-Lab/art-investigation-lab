@@ -21,22 +21,19 @@ export function Header() {
       </div>
 
       <div className="header-controls" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flex: 1 }}>
-        <Link
-          href="/walkthrough"
-          className={'btn-header ' + (pathname === '/walkthrough' ? 'active' : '')}
-        >
+        <Link href="/walkthrough" className={'btn-header ' + (pathname === '/walkthrough' ? 'active' : '')}>
           WALKTHROUGH
         </Link>
-        <Link
-          href="/workflow"
-          className={'btn-header ' + (pathname === '/workflow' ? 'active' : '')}
-        >
+        <Link href="/workflow" className={'btn-header ' + (pathname === '/workflow' ? 'active' : '')}>
           WORKFLOW
         </Link>
       </div>
 
-      <div className="header-right" style={{ display: 'flex', justifyContent: 'flex-end', flex: 1, paddingRight: '1rem', alignItems: 'center' }}>
-        <Link href="/workflow" className="btn primary">
+      <div
+        className="header-right"
+        style={{ display: 'flex', justifyContent: 'flex-end', flex: 1, paddingRight: '1rem', alignItems: 'center' }}
+      >
+        <Link href="/start-contributing" className="btn primary">
           Start Contributing
         </Link>
       </div>
