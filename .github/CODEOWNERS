@@ -1,0 +1,15 @@
+# GitHub CODEOWNERS for ART Investigation Lab
+#
+# NOTICE:
+# CODEOWNERS defines review assignment for specific paths.
+# On standard GitHub plans, CODEOWNERS automatically requests reviews from the specified users/teams
+# but does NOT prevent direct pushes to protected branches unless Branch Protection / Rulesets
+# with "Require review from Code Owners" is explicitly configured and enforced on the repository.
+#
+# All contributors must adhere to the pull-request contribution protocol defined in
+# research/procurement/operations/TEAM_ONBOARDING.md.
+
+# Procurement Research Workspace Review Ownership
+/research/procurement/ @Chiranjeevi005
+/.github/workflows/procurement-pr-check.yml @Chiranjeevi005
+/scripts/procurement/ @Chiranjeevi005
