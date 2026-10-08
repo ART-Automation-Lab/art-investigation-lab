@@ -39,10 +39,10 @@ gh pr create --base main --fill
 
 ### A. Authoring Research in Your Process Directory
 1. Work **only** within your directory:
-   - Chiranjeevi $\rightarrow$ `research/procurement/processes/P01-RFP/`
-   - Vrushali $\rightarrow$ `research/procurement/processes/P02-SUPPLIER-DELIVERY/`
-   - Bhushan $\rightarrow$ `research/procurement/processes/P03-REPLENISHMENT/`
-   - Ashwin $\rightarrow$ `research/procurement/processes/P04-INVOICE-EXCEPTIONS/`
+   - Chiranjeevi (`Chiranjeevi005`) $\rightarrow$ `research/procurement/processes/P01-RFP/`
+   - Vrushali (`VrushaliAPoojary`) $\rightarrow$ `research/procurement/processes/P02-SUPPLIER-DELIVERY/`
+   - Bhushan (`BhushanShenoy07`) $\rightarrow$ `research/procurement/processes/P03-REPLENISHMENT/`
+   - Ashwin (`ashwinash19`) $\rightarrow$ `research/procurement/processes/P04-INVOICE-EXCEPTIONS/`
 2. Add evidence citations with verified URLs or verbatim quotes.
 3. Keep all image and document references **strictly relative** (e.g. `![Workflow](./diagram.png)`).
 
@@ -144,5 +144,8 @@ ART INVESTIGATION LAB — UNIFIED SYSTEM VALIDATION
 | `Scope Boundary Violation: File outside assigned process` | You edited files in another member's folder or in `src/` | Restore those files using `git restore <file>` |
 | `Broken relative link: ./image.png not found` | The referenced file does not exist at that path | Ensure the evidence asset is saved in the same directory |
 | `Absolute path rejected: /home/...` | Markdown contains host-specific absolute paths | Change `/home/user/.../file.png` to `./file.png` |
-| `Permission Denied: Only coordinator may promote` | You attempted to run `promote-bug` | Only Coordinator Chiranjeevi promotes draft bugs to canonical IDs |
+| `Filename too long (unable to create file ...)` | Windows 260-char path length limitation | Run `git config core.longpaths true` then `git restore --source=HEAD :/` |
+| `npm.ps1 cannot be loaded (script execution disabled)` | Windows PowerShell script execution policy | Use `npm.cmd` directly in PowerShell (e.g. `npm.cmd ci`, `npm.cmd test`) |
+| `UnicodeEncodeError: 'charmap' codec can't encode ...` | Windows console default cp1252 codepage | Set `$env:PYTHONUTF8 = "1"` in PowerShell before running Python commands |
+| `Permission Denied: Only coordinator may promote` | You attempted to run `promote-bug` without coordinator authorization | Canonical ID promotion is restricted to verified Project Coordinator Chiranjeevi |
 | `Duplicate Bug Warning: Similarity > 0.85` | A bug with almost identical wording already exists | Inspect the existing bug ID and append your notes to it instead |

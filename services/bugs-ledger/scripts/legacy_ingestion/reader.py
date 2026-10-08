@@ -152,7 +152,11 @@ class LegacyIngestionAdapter:
 
         for fname in actual_files:
             full_path = os.path.join(bug_dir, fname)
-            rel_path = os.path.relpath(full_path, BASE_DIR)
+            try:
+                rel_path = os.path.relpath(full_path, BASE_DIR)
+            except ValueError:
+                # Cross-drive fallback on Windows
+                rel_path = os.path.abspath(full_path)
             size = os.path.getsize(full_path)
             with open(full_path, "rb") as fp:
                 sha256 = hashlib.sha256(fp.read()).hexdigest()
@@ -280,7 +284,11 @@ class LegacyIngestionAdapter:
             "eventType": "INVESTIGATION_CAPTURED",
             "summary": f"Imported legacy bug record {bug_id} from ART-Product-Validation/bugs",
             "details": {
-                "sourceMarkdownPath": os.path.relpath(os.path.join(bug_dir, f"{bug_id}.md"), BASE_DIR),
+                "sourceMarkdownPath": (
+                    os.path.relpath(os.path.join(bug_dir, f"{bug_id}.md"), BASE_DIR)
+                    if not (hasattr(os.path, "splitdrive") and os.path.splitdrive(bug_dir)[0].lower() != os.path.splitdrive(BASE_DIR)[0].lower())
+                    else os.path.abspath(os.path.join(bug_dir, f"{bug_id}.md"))
+                ),
                 "rawContentSha256": hashlib.sha256(parsed["raw_content"].encode("utf-8")).hexdigest()
             }
         }
@@ -310,6 +318,12 @@ class LegacyIngestionAdapter:
             "updatedAt": "2026-09-24T00:00:00Z"
         }
 
+        source_md_full = os.path.join(bug_dir, f"{bug_id}.md")
+        try:
+            source_md_rel = os.path.relpath(source_md_full, BASE_DIR)
+        except ValueError:
+            source_md_rel = os.path.abspath(source_md_full)
+
         return {
             "Investigation": investigation,
             "OriginalInput": original_input,
@@ -317,7 +331,7 @@ class LegacyIngestionAdapter:
             "TicketArtifact": ticket_artifact,
             "AuditEvent": audit_event,
             "sourceMetadata": {
-                "sourceMarkdownPath": os.path.relpath(os.path.join(bug_dir, f"{bug_id}.md"), BASE_DIR),
+                "sourceMarkdownPath": source_md_rel,
                 "rawMarkdownContent": parsed["raw_content"],
                 "ledgerRow": self.ledger_data.get(bug_id)
             }
@@ -427,6 +441,7 @@ def main():
             "ledger": ledger_status,
             "schema": schema_status,
             "overall": overall,
+            # pyrefly: ignore [bad-assignment]
             "evidence_status_map": ev_status_map,
             "errors": err_details
         })

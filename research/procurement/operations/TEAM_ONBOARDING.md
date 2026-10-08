@@ -60,14 +60,13 @@ git checkout main
 git pull origin main
 ```
 
-### 2. Create a Short-Lived Research Branch
-Create a descriptive branch for your assigned process sprint:
+### 2. Switch to Your Assigned Research Branch
+Switch to your assigned research branch (safe checkout automatically tracks `origin` if present and never overwrites existing local work):
 ```bash
-# Naming pattern: research/<name>-<topic>-<batch>
-git checkout -b research/vrushali-delivery-001    # for P02
-git checkout -b research/bhushan-replenish-001    # for P03
-git checkout -b research/ashwin-invoice-001       # for P04
-git checkout -b research/chiranjeevi-rfp-001      # for P01
+git checkout research/vrushali       # for P02 (VrushaliAPoojary)
+git checkout research/bhushan        # for P03 (BhushanShenoy07)
+git checkout research/ashwin         # for P04 (ashwinash19)
+git checkout research/chiranjeevi    # for P01 (Chiranjeevi005)
 ```
 
 ### 3. Edit Assigned Markdown Files
@@ -140,15 +139,19 @@ git restore path/to/unintended-file
 ### Mistake 2: Accidentally Committed to `main` Locally
 If you made a commit on `main` instead of creating a branch:
 ```bash
+# Stash any uncommitted work first to prevent data loss:
+git stash
+
 # Create a new branch carrying your commit
 git branch research/<your-name>-work
 
-# Reset your local main to match remote origin/main
+# Safely reset your local main to match remote origin/main without destroying uncommitted work:
 git checkout main
-git reset --hard origin/main
+git reset --keep origin/main
 
-# Switch back to your working branch
+# Switch back to your working branch and restore stashed work:
 git checkout research/<your-name>-work
+git stash pop
 ```
 
 ### Mistake 3: "Detached HEAD" State

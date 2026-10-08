@@ -44,12 +44,12 @@ art-investigation-lab/
 
 Each team member has sole ownership of exactly one procurement process:
 
-| Contributor | Process ID & Scope | Git Branch | Working Directory | Primary Role |
-| :--- | :--- | :--- | :--- | :--- |
-| **Chiranjeevi** | `P01-RFP` — RFP Requirement Review & Response Coordination | `research/chiranjeevi` | `research/procurement/processes/P01-RFP/` | Project Coordinator & P01 Owner |
-| **Vrushali** | `P02-SUPPLIER-DELIVERY` — Supplier Delivery Confirmation & Delay Escalation | `research/vrushali` | `research/procurement/processes/P02-SUPPLIER-DELIVERY/` | Process Owner |
-| **Bhushan** | `P03-REPLENISHMENT` — Inventory Replenishment & Reorder Exceptions | `research/bhushan` | `research/procurement/processes/P03-REPLENISHMENT/` | Process Owner |
-| **Ashwin** | `P04-INVOICE-EXCEPTIONS` — Invoice Discrepancy Resolution | `research/ashwin` | `research/procurement/processes/P04-INVOICE-EXCEPTIONS/` | Process Owner |
+| Contributor | GitHub Account | Process ID & Scope | Git Branch | Working Directory | Primary Role |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Chiranjeevi** | `Chiranjeevi005` | `P01-RFP` — RFP Requirement Review & Response Coordination | `research/chiranjeevi` | `research/procurement/processes/P01-RFP/` | Project Coordinator & P01 Owner |
+| **Vrushali** | `VrushaliAPoojary` | `P02-SUPPLIER-DELIVERY` — Supplier Delivery Confirmation & Delay Escalation | `research/vrushali` | `research/procurement/processes/P02-SUPPLIER-DELIVERY/` | Process Owner |
+| **Bhushan** | `BhushanShenoy07` | `P03-REPLENISHMENT` — Inventory Replenishment & Reorder Exceptions | `research/bhushan` | `research/procurement/processes/P03-REPLENISHMENT/` | Process Owner |
+| **Ashwin** | `ashwinash19` | `P04-INVOICE-EXCEPTIONS` — Invoice Discrepancy Resolution | `research/ashwin` | `research/procurement/processes/P04-INVOICE-EXCEPTIONS/` | Process Owner |
 
 ---
 
@@ -61,6 +61,8 @@ Each team member has sole ownership of exactly one procurement process:
 3. **Antigravity IDE:** The pair-programming IDE for all research and development.
 
 ### Setup Steps
+
+#### Linux / macOS
 ```bash
 # 1. Clone repository
 git clone https://github.com/ART-Automation-Lab/art-investigation-lab.git
@@ -70,6 +72,26 @@ cd art-investigation-lab
 gh auth login
 
 # 3. Open in Antigravity
+agy .
+```
+
+#### Windows (PowerShell)
+```powershell
+# 1. Enable long paths during clone to avoid Windows MAX_PATH errors:
+git clone -c core.longpaths=true https://github.com/ART-Automation-Lab/art-investigation-lab.git
+cd art-investigation-lab
+git config core.longpaths true
+
+# 2. Ensure UTF-8 console output:
+$env:PYTHONUTF8 = "1"
+
+# 3. Authenticate GitHub CLI or Git Credential Manager securely (browser-based):
+gh auth login
+
+# 4. If invoking npm scripts in PowerShell, use npm.cmd to bypass script execution policy:
+npm.cmd --version
+
+# 5. Open in Antigravity
 agy .
 ```
 

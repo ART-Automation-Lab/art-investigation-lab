@@ -4,12 +4,12 @@
 
 This document defines the definitive role, process scope, and Git branch assignment for each member of the four-person procurement research team.
 
-| Member | Assigned Process ID & Name | Role | Git Branch | Working Directory |
-|---|---|---|---|---|
-| **Chiranjeevi** | `P01-RFP` — RFP Requirement Review & Response Coordination | Coordinator & Process Owner | `research/chiranjeevi` | [`processes/P01-RFP/`](./processes/P01-RFP/) |
-| **Vrushali** | `P02-SUPPLIER-DELIVERY` — Supplier Delivery Confirmation & Delay Escalation | Process Owner | `research/vrushali` | [`processes/P02-SUPPLIER-DELIVERY/`](./processes/P02-SUPPLIER-DELIVERY/) |
-| **Bhushan** | `P03-REPLENISHMENT` — Inventory Replenishment & Reorder Exceptions | Process Owner | `research/bhushan` | [`processes/P03-REPLENISHMENT/`](./processes/P03-REPLENISHMENT/) |
-| **Ashwin** | `P04-INVOICE-EXCEPTIONS` — Invoice Discrepancy Resolution | Process Owner | `research/ashwin` | [`processes/P04-INVOICE-EXCEPTIONS/`](./processes/P04-INVOICE-EXCEPTIONS/) |
+| Member | GitHub Account | Assigned Process ID & Name | Role | Git Branch | Working Directory |
+|---|---|---|---|---|---|
+| **Chiranjeevi** | `Chiranjeevi005` | `P01-RFP` — RFP Requirement Review & Response Coordination | Coordinator & Process Owner | `research/chiranjeevi` | [`processes/P01-RFP/`](./processes/P01-RFP/) |
+| **Vrushali** | `VrushaliAPoojary` | `P02-SUPPLIER-DELIVERY` — Supplier Delivery Confirmation & Delay Escalation | Process Owner | `research/vrushali` | [`processes/P02-SUPPLIER-DELIVERY/`](./processes/P02-SUPPLIER-DELIVERY/) |
+| **Bhushan** | `BhushanShenoy07` | `P03-REPLENISHMENT` — Inventory Replenishment & Reorder Exceptions | Process Owner | `research/bhushan` | [`processes/P03-REPLENISHMENT/`](./processes/P03-REPLENISHMENT/) |
+| **Ashwin** | `ashwinash19` | `P04-INVOICE-EXCEPTIONS` — Invoice Discrepancy Resolution | Process Owner | `research/ashwin` | [`processes/P04-INVOICE-EXCEPTIONS/`](./processes/P04-INVOICE-EXCEPTIONS/) |
 
 ---
 
