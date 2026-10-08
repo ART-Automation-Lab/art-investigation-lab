@@ -24,6 +24,13 @@ MODULE_TO_FEATURE = {
     'CRED': 'Credential Manager'
 }
 
+CONTRIBUTOR_PROCESS_MAP = {
+    'chiranjeevi': 'P01',
+    'vrushali': 'P02',
+    'bhushan': 'P03',
+    'ashwin': 'P04'
+}
+
 def create_slug(title):
     clean = re.sub(r'[^a-zA-Z0-9 -]', '', title).lower()
     return re.sub(r'[ -]+', '-', clean).strip('-')[:50]
@@ -50,7 +57,15 @@ def check_duplicates(title, description, bugs_root):
                 matches.append((md_files[0].replace('.md', ''), ratio, folder))
     return sorted(matches, key=lambda x: x[1], reverse=True)
 
-def create_draft(contributor, module, title, description, severity, evidence_files, repo_root):
+def create_draft(contributor, module, title, description, severity, evidence_files, repo_root, actor=None):
+    if actor:
+        actor_clean = actor.strip().lower()
+        expected_code = CONTRIBUTOR_PROCESS_MAP.get(actor_clean)
+        if expected_code and contributor.strip().upper() != expected_code:
+            raise PermissionError(
+                f"Process ownership violation: Actor '{actor}' is assigned to {expected_code}, not {contributor}."
+            )
+            
     nl = chr(10)
     module_norm = module.strip().upper()
     if module_norm not in CANONICAL_MODULES:
@@ -155,8 +170,9 @@ def create_draft(contributor, module, title, description, severity, evidence_fil
 
 def submit_retest(bug_id, verdict, actor, actor_role, evidence_files, notes, repo_root):
     nl = chr(10)
-    if actor_role == 'AI':
-        raise PermissionError('AI actors are strictly forbidden from submitting verification or confirming VERIFIED status.')
+    actor_clean = (actor or '').strip().lower()
+    if actor_role == 'AI' or actor_clean in {'ai', 'antigravity', 'assistant', 'bot', 'agent'}:
+        raise PermissionError('AI actors are strictly forbidden from submitting verification or confirming VERIFIED status. Verification must be performed and signed off by a human team member.')
     
     valid_verdicts = {'PASSED', 'FAILED', 'INCONCLUSIVE', 'VERIFIED'}
     if verdict.upper() not in valid_verdicts:
@@ -223,6 +239,7 @@ if __name__ == '__main__':
     p_draft.add_argument('--desc', required=True)
     p_draft.add_argument('--severity', default='HIGH')
     p_draft.add_argument('--evidence', nargs='*', default=[])
+    p_draft.add_argument('--actor', default='')
     p_draft.add_argument('--repo-root', default='.')
 
     p_retest = subparsers.add_parser('retest')
@@ -236,6 +253,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.action == 'create-draft':
-        create_draft(args.contributor, args.module, args.title, args.desc, args.severity, args.evidence, args.repo_root)
+        create_draft(args.contributor, args.module, args.title, args.desc, args.severity, args.evidence, args.repo_root, actor=args.actor)
     elif args.action == 'retest':
         submit_retest(args.bug_id, args.verdict, args.actor, args.actor_role, args.evidence, args.notes, args.repo_root)

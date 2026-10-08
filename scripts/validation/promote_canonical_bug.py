@@ -4,7 +4,11 @@ import sys
 import re
 import shutil
 import argparse
+import getpass
+import subprocess
 from urllib.parse import quote
+
+COORDINATOR_USER = "chiranjeevi"
 
 MODULE_TO_FEATURE = {
     'AGENT': 'Agent Lab',
@@ -21,7 +25,64 @@ MODULE_TO_FEATURE = {
     'CRED': 'Credential Manager'
 }
 
-def promote_draft(draft_id, repo_root):
+def verify_coordinator_authorization(declared_user=None, repo_root='.'):
+    """
+    Verify that the execution environment genuinely possesses Project Coordinator authority.
+    Does not trust self-declared coordinator identity without system and credential verification.
+    Fails closed if authentication is unavailable, ambiguous, or identity mismatches.
+    """
+    if declared_user and declared_user.strip().lower() != COORDINATOR_USER:
+        return False, f"Declared user '{declared_user}' is not authorized. Coordinator operations are restricted to '{COORDINATOR_USER}'."
+
+    # 1. OS user verification
+    try:
+        current_os_user = getpass.getuser()
+    except Exception:
+        current_os_user = os.environ.get("USER", "")
+        
+    if current_os_user != COORDINATOR_USER:
+        return False, (
+            f"OS identity check failed: Active system user is '{current_os_user}', not '{COORDINATOR_USER}'. "
+            "Self-declared coordinator privileges without verified OS identity are rejected."
+        )
+
+    # 2. Credential & Git/GitHub verification
+    git_name = ""
+    git_email = ""
+    try:
+        res_name = subprocess.run(["git", "config", "user.name"], capture_output=True, text=True, cwd=repo_root)
+        if res_name.returncode == 0:
+            git_name = res_name.stdout.strip().lower()
+        res_email = subprocess.run(["git", "config", "user.email"], capture_output=True, text=True, cwd=repo_root)
+        if res_email.returncode == 0:
+            git_email = res_email.stdout.strip().lower()
+    except Exception:
+        pass
+
+    gh_authenticated = False
+    try:
+        res_gh = subprocess.run(["gh", "auth", "status"], capture_output=True, text=True, cwd=repo_root)
+        if res_gh.returncode == 0 or "Logged in to github.com" in (res_gh.stdout + res_gh.stderr):
+            output = res_gh.stdout + res_gh.stderr
+            if "Chiranjeevi005" in output or "chiranjeevi" in output.lower():
+                gh_authenticated = True
+    except Exception:
+        pass
+
+    if not (gh_authenticated or "chiranjeevi" in git_name or "chiranjeevi" in git_email):
+        return False, (
+            "Coordinator credential verification failed: No verified Git credentials or GitHub auth session "
+            f"found matching '{COORDINATOR_USER}'. Failing closed."
+        )
+
+    return True, f"Verified coordinator authority for '{COORDINATOR_USER}'."
+
+def promote_draft(draft_id, repo_root, coordinator=None):
+    authorized, reason = verify_coordinator_authorization(declared_user=coordinator, repo_root=repo_root)
+    if not authorized:
+        print(f"❌ PERMISSION DENIED: {reason}", file=sys.stderr)
+        raise PermissionError(f"PERMISSION DENIED: {reason}")
+        
     drafts_root = os.path.join(repo_root, 'services', 'bugs-ledger', 'ART-Product-Validation', 'drafts')
     bugs_root = os.path.join(repo_root, 'services', 'bugs-ledger', 'ART-Product-Validation', 'bugs')
     
@@ -81,7 +142,7 @@ def promote_draft(draft_id, repo_root):
     compile_script = os.path.join(repo_root, 'scripts', 'validation', 'compile_ledger.py')
     ledger_out = os.path.join(repo_root, 'services', 'bugs-ledger', 'ART-Product-Validation', 'ART_PRODUCT_VALIDATION_LEDGER.md')
     if os.path.exists(compile_script):
-        os.system('python3 ' + compile_script + ' --bugs-root ' + bugs_root + ' --output ' + ledger_out)
+        subprocess.run([sys.executable, compile_script, '--bugs-root', bugs_root, '--output', ledger_out], check=True)
         
     print('Promotion complete: ' + canonical_id + ' established.')
     return canonical_id
@@ -89,6 +150,10 @@ def promote_draft(draft_id, repo_root):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--draft-id', required=True)
+    parser.add_argument('--coordinator', default=None, help="Declared coordinator username")
     parser.add_argument('--repo-root', default='.')
     args = parser.parse_args()
-    promote_draft(args.draft_id, args.repo_root)
+    try:
+        promote_draft(args.draft_id, args.repo_root, coordinator=args.coordinator)
+    except PermissionError as pe:
+        sys.exit(1)
