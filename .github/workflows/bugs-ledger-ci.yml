@@ -1,0 +1,58 @@
+name: Bugs Ledger & Integration Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'services/bugs-ledger/**'
+      - 'scripts/validation/**'
+      - 'scripts/art_harness.py'
+      - '.github/workflows/bugs-ledger-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bugs-ledger-pr-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  validate-bugs-ledger:
+    name: Validate Bugs Ledger & Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest fastapi httpx jsonschema pydantic
+
+      - name: Run Schema & Link Validation
+        run: |
+          python3 scripts/validation/validate-art-bugs.py \
+            --bugs-root services/bugs-ledger/ART-Product-Validation/bugs
+
+      - name: Run Bugs Ledger Pytest Suite
+        run: |
+          cd services/bugs-ledger
+          python3 -m pytest tests/ -v
+
+      - name: Verify Secret & Database Exclusion
+        run: |
+          echo "Scanning for accidental secrets or database binaries..."
+          ! git ls-files | grep -E '(\.env$|\.env\.development$|\.db$|\.sqlite$)' || {
+            echo "❌ CRITICAL SECURITY ERROR: Secrets or SQLite database binaries found in git tracking!"
+            exit 1
+          }
+          echo "✅ Security check passed: No credentials or database files tracked."
