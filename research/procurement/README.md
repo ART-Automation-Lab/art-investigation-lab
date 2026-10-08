@@ -62,6 +62,15 @@ research/
     │       ├── evidence.md
     │       ├── workflow.md
     │       └── art-validation.md
+    ├── operations/               # Operational guides, checklists, and AI rules
+    │   ├── TEAM_ONBOARDING.md    # Contributor setup, Git workflow, and troubleshooting
+    │   ├── RESEARCH_EXECUTION.md # 12-step repeatable evidence investigation procedure
+    │   ├── EVIDENCE_QUALITY_GATE.md # 12-point evidence acceptance criteria
+    │   ├── PR_REVIEW_STANDARD.md # PR review contract and 4 decision verdicts
+    │   ├── AI_AGENT_RULES.md     # 12 non-negotiable rules for AI assistants
+    │   ├── AMBIGUITY_RESOLUTION.md # A1-A4 operational ambiguity protocol
+    │   ├── SESSION_HANDOFF.md    # Inter-session handoff template for AI/human continuity
+    │   └── COORDINATOR_PLAYBOOK.md # Chiranjeevi review and PR merge procedure
     ├── validation/
     │   └── RFP-001/              # Synthetic test validation kit
     │       ├── README.md         # Protocol: synthetic status, answer key isolation
@@ -77,9 +86,9 @@ research/
 
 ## 4. Team Workflow Guide
 
-Every team member must follow these step-by-step contribution instructions:
+Every team member must follow the detailed onboarding guide in [`operations/TEAM_ONBOARDING.md`](./operations/TEAM_ONBOARDING.md):
 
-1. **Review Standards:** Carefully read [`MASTER_PROMPT.md`](./MASTER_PROMPT.md) and [`RESEARCH_STANDARD.md`](./RESEARCH_STANDARD.md) before conducting any research.
+1. **Review Standards:** Carefully read [`MASTER_PROMPT.md`](./MASTER_PROMPT.md), [`RESEARCH_STANDARD.md`](./RESEARCH_STANDARD.md), and [`operations/RESEARCH_EXECUTION.md`](./operations/RESEARCH_EXECUTION.md) before conducting any research.
 2. **Strict Scope Discipline:** Work **only** on your assigned process directory under `processes/`.
 3. **Branch from Latest `main`:**
    ```bash

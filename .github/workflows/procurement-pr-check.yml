@@ -1,0 +1,53 @@
+name: Procurement Research PR Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'research/procurement/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/CODEOWNERS'
+      - '.github/workflows/procurement-pr-check.yml'
+      - 'scripts/procurement/**'
+
+# Minimum required permissions: read-only access to repository contents
+permissions:
+  contents: read
+
+concurrency:
+  group: procurement-pr-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  validate-procurement:
+    name: Validate Procurement Workspace
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Extract Changed Files in PR
+        id: changed-files
+        run: |
+          git fetch origin main --depth=1
+          CHANGED=$(git diff --name-only origin/main...HEAD)
+          echo "Changed files in PR:"
+          echo "$CHANGED"
+          # Convert newlines to spaces for passing to python script
+          CHANGED_ARGS=$(echo "$CHANGED" | tr '\n' ' ')
+          echo "changed_args=$CHANGED_ARGS" >> "$GITHUB_OUTPUT"
+
+      - name: Run Procurement Workspace Validator
+        run: |
+          python3 scripts/procurement/validate-procurement-workspace.py \
+            --repo-root . \
+            --changed-files ${{ steps.changed-files.outputs.changed_args }}
