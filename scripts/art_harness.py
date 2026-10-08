@@ -19,51 +19,88 @@ import subprocess
 import getpass
 from typing import Tuple, Optional
 
+# Configure UTF-8 console output for cross-platform consistency (Windows/Linux)
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+# Ensure child processes inherit UTF-8 encoding
+os.environ["PYTHONUTF8"] = "1"
+os.environ["PYTHONIOENCODING"] = "utf-8"
+
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 BUGS_ROOT = os.path.join(REPO_ROOT, "services", "bugs-ledger", "ART-Product-Validation", "bugs")
 SCRIPTS_DIR = os.path.join(REPO_ROOT, "scripts", "validation")
 COORDINATOR_USER = "chiranjeevi"
+COORDINATOR_GITHUB_LOGIN = "Chiranjeevi005"
 
 # Approved Research Ownership Architecture
 PROCESS_MAP = {
     "P01-RFP": {
         "owner": "chiranjeevi",
+        "github": "Chiranjeevi005",
         "code": "P01",
         "name": "RFP Requirement Review & Response Coordination",
         "dir": "research/procurement/processes/P01-RFP",
+        "branch": "research/chiranjeevi",
+        "role": "coordinator and contributor",
     },
     "P02-SUPPLIER-DELIVERY": {
         "owner": "vrushali",
+        "github": "VrushaliAPoojary",
         "code": "P02",
         "name": "Supplier Delivery Confirmation & Delay Escalation",
         "dir": "research/procurement/processes/P02-SUPPLIER-DELIVERY",
+        "branch": "research/vrushali",
+        "role": "contributor",
     },
     "P03-REPLENISHMENT": {
         "owner": "bhushan",
+        "github": "BhushanShenoy07",
         "code": "P03",
         "name": "Inventory Replenishment & Reorder Exceptions",
         "dir": "research/procurement/processes/P03-REPLENISHMENT",
+        "branch": "research/bhushan",
+        "role": "contributor",
     },
     "P04-INVOICE-EXCEPTIONS": {
         "owner": "ashwin",
+        "github": "ashwinash19",
         "code": "P04",
         "name": "Invoice Discrepancy Resolution",
         "dir": "research/procurement/processes/P04-INVOICE-EXCEPTIONS",
+        "branch": "research/ashwin",
+        "role": "contributor",
     },
 }
 
 CONTRIBUTOR_TO_PROCESS = {
     "chiranjeevi": "P01-RFP",
+    "chiranjeevi005": "P01-RFP",
     "vrushali": "P02-SUPPLIER-DELIVERY",
+    "vrushaliapoojary": "P02-SUPPLIER-DELIVERY",
     "bhushan": "P03-REPLENISHMENT",
+    "bhushanshenoy07": "P03-REPLENISHMENT",
     "ashwin": "P04-INVOICE-EXCEPTIONS",
+    "ashwinash19": "P04-INVOICE-EXCEPTIONS",
 }
 
 CONTRIBUTOR_TO_CODE = {
     "chiranjeevi": "P01",
+    "chiranjeevi005": "P01",
     "vrushali": "P02",
+    "vrushaliapoojary": "P02",
     "bhushan": "P03",
+    "bhushanshenoy07": "P03",
     "ashwin": "P04",
+    "ashwinash19": "P04",
 }
 
 CODE_TO_OWNER = {
@@ -76,56 +113,45 @@ CODE_TO_OWNER = {
 def verify_coordinator_authorization(declared_user: Optional[str] = None) -> Tuple[bool, str]:
     """
     Verify that the execution environment genuinely possesses Project Coordinator authority.
-    Does not trust self-declared coordinator identity without system and credential verification.
-    Fails closed if authentication is unavailable, ambiguous, or identity mismatches.
+    Never treats local OS usernames, local Git configuration (user.name/email),
+    or self-declared command-line arguments as sufficient privilege verification.
+    Requires a verified, trusted authentication session matching GitHub identity 'Chiranjeevi005'.
+    Fails closed for privileged operations when trusted authorization is unavailable.
     """
-    if declared_user and declared_user.strip().lower() != COORDINATOR_USER:
-        return False, f"Declared user '{declared_user}' is not authorized. Coordinator operations are restricted to '{COORDINATOR_USER}'."
+    # 1. Reject if declared user contradicts coordinator
+    if declared_user and declared_user.strip().lower() not in {COORDINATOR_USER, COORDINATOR_GITHUB_LOGIN.lower()}:
+        return False, f"Declared user '{declared_user}' is not authorized. Coordinator operations are restricted to '{COORDINATOR_GITHUB_LOGIN}'."
 
-    # 1. OS user verification
+    # 2. Local OS usernames, environment variables, and Git config are easily spoofed locally
+    # and are strictly rejected as insufficient evidence of coordinator authority.
+
+    # 3. Trusted verification: Query active GitHub authenticated identity via GitHub CLI
     try:
-        current_os_user = getpass.getuser()
-    except Exception:
-        current_os_user = os.environ.get("USER", "")
-        
-    if current_os_user != COORDINATOR_USER:
-        return False, (
-            f"OS identity check failed: Active system user is '{current_os_user}', not '{COORDINATOR_USER}'. "
-            "Self-declared coordinator privileges without verified OS identity are rejected."
+        res_gh = subprocess.run(
+            ["gh", "api", "user", "--jq", ".login"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+            timeout=10
         )
-
-    # 2. Credential & Git/GitHub verification
-    git_name = ""
-    git_email = ""
-    try:
-        res_name = subprocess.run(["git", "config", "user.name"], capture_output=True, text=True, cwd=REPO_ROOT)
-        if res_name.returncode == 0:
-            git_name = res_name.stdout.strip().lower()
-        res_email = subprocess.run(["git", "config", "user.email"], capture_output=True, text=True, cwd=REPO_ROOT)
-        if res_email.returncode == 0:
-            git_email = res_email.stdout.strip().lower()
+        if res_gh.returncode == 0:
+            authenticated_login = res_gh.stdout.strip()
+            if authenticated_login.lower() == COORDINATOR_GITHUB_LOGIN.lower():
+                return True, f"Verified coordinator authority: authenticated GitHub identity '{authenticated_login}'"
+            else:
+                return False, (
+                    f"Coordinator verification failed: Authenticated GitHub identity is '{authenticated_login}', "
+                    f"but coordinator operations are restricted to '{COORDINATOR_GITHUB_LOGIN}'. Failing closed."
+                )
     except Exception:
         pass
 
-    gh_authenticated = False
-    gh_account = ""
-    try:
-        res_gh = subprocess.run(["gh", "auth", "status"], capture_output=True, text=True, cwd=REPO_ROOT)
-        output = res_gh.stdout + res_gh.stderr
-        if res_gh.returncode == 0 or "Logged in to github.com" in output:
-            if "Chiranjeevi005" in output or "chiranjeevi" in output.lower():
-                gh_authenticated = True
-                gh_account = "Chiranjeevi005"
-    except Exception:
-        pass
-
-    if not (gh_authenticated or "chiranjeevi" in git_name or "chiranjeevi" in git_email):
-        return False, (
-            "Coordinator credential verification failed: No verified Git credentials or GitHub auth session "
-            f"found matching '{COORDINATOR_USER}'. Failing closed."
-        )
-
-    return True, f"Verified coordinator authority for '{COORDINATOR_USER}' (OS user: {current_os_user}, GitHub: {gh_account or git_name})"
+    # If trusted verification is unavailable or failed, fail closed
+    return False, (
+        f"Coordinator authorization failed: Trusted GitHub authenticated session for '{COORDINATOR_GITHUB_LOGIN}' is unavailable.\n"
+        "Local OS usernames, Git config (user.name/email), and self-declared flags are unverified and insufficient for privileged operations.\n"
+        "Failing closed."
+    )
 
 def cmd_validate(args):
     """Run validation checks across research workspace, bugs ledger, and unit tests."""

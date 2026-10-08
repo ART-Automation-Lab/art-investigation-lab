@@ -9,6 +9,18 @@ import subprocess
 from urllib.parse import quote
 
 COORDINATOR_USER = "chiranjeevi"
+COORDINATOR_GITHUB_LOGIN = "Chiranjeevi005"
+
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 MODULE_TO_FEATURE = {
     'AGENT': 'Agent Lab',
@@ -28,54 +40,44 @@ MODULE_TO_FEATURE = {
 def verify_coordinator_authorization(declared_user=None, repo_root='.'):
     """
     Verify that the execution environment genuinely possesses Project Coordinator authority.
-    Does not trust self-declared coordinator identity without system and credential verification.
-    Fails closed if authentication is unavailable, ambiguous, or identity mismatches.
+    Never treats local OS usernames, local Git configuration (user.name/email),
+    or self-declared command-line arguments as sufficient privilege verification.
+    Requires a verified, trusted authentication session matching GitHub identity 'Chiranjeevi005'.
+    Fails closed for privileged operations when trusted authorization is unavailable.
     """
-    if declared_user and declared_user.strip().lower() != COORDINATOR_USER:
-        return False, f"Declared user '{declared_user}' is not authorized. Coordinator operations are restricted to '{COORDINATOR_USER}'."
+    if declared_user and declared_user.strip().lower() not in {COORDINATOR_USER, COORDINATOR_GITHUB_LOGIN.lower()}:
+        return False, f"Declared user '{declared_user}' is not authorized. Coordinator operations are restricted to '{COORDINATOR_GITHUB_LOGIN}'."
 
-    # 1. OS user verification
+    # Local OS usernames, environment variables, and Git config are easily spoofed locally
+    # and are strictly rejected as insufficient evidence of coordinator authority.
+
+    # Trusted verification: Query active GitHub authenticated identity via GitHub CLI
     try:
-        current_os_user = getpass.getuser()
-    except Exception:
-        current_os_user = os.environ.get("USER", "")
-        
-    if current_os_user != COORDINATOR_USER:
-        return False, (
-            f"OS identity check failed: Active system user is '{current_os_user}', not '{COORDINATOR_USER}'. "
-            "Self-declared coordinator privileges without verified OS identity are rejected."
+        res_gh = subprocess.run(
+            ["gh", "api", "user", "--jq", ".login"],
+            capture_output=True,
+            text=True,
+            cwd=repo_root,
+            timeout=10
         )
-
-    # 2. Credential & Git/GitHub verification
-    git_name = ""
-    git_email = ""
-    try:
-        res_name = subprocess.run(["git", "config", "user.name"], capture_output=True, text=True, cwd=repo_root)
-        if res_name.returncode == 0:
-            git_name = res_name.stdout.strip().lower()
-        res_email = subprocess.run(["git", "config", "user.email"], capture_output=True, text=True, cwd=repo_root)
-        if res_email.returncode == 0:
-            git_email = res_email.stdout.strip().lower()
+        if res_gh.returncode == 0:
+            authenticated_login = res_gh.stdout.strip()
+            if authenticated_login.lower() == COORDINATOR_GITHUB_LOGIN.lower():
+                return True, f"Verified coordinator authority: authenticated GitHub identity '{authenticated_login}'"
+            else:
+                return False, (
+                    f"Coordinator verification failed: Authenticated GitHub identity is '{authenticated_login}', "
+                    f"but coordinator operations are restricted to '{COORDINATOR_GITHUB_LOGIN}'. Failing closed."
+                )
     except Exception:
         pass
 
-    gh_authenticated = False
-    try:
-        res_gh = subprocess.run(["gh", "auth", "status"], capture_output=True, text=True, cwd=repo_root)
-        if res_gh.returncode == 0 or "Logged in to github.com" in (res_gh.stdout + res_gh.stderr):
-            output = res_gh.stdout + res_gh.stderr
-            if "Chiranjeevi005" in output or "chiranjeevi" in output.lower():
-                gh_authenticated = True
-    except Exception:
-        pass
-
-    if not (gh_authenticated or "chiranjeevi" in git_name or "chiranjeevi" in git_email):
-        return False, (
-            "Coordinator credential verification failed: No verified Git credentials or GitHub auth session "
-            f"found matching '{COORDINATOR_USER}'. Failing closed."
-        )
-
-    return True, f"Verified coordinator authority for '{COORDINATOR_USER}'."
+    # Fail closed when trusted verification is unavailable
+    return False, (
+        f"Coordinator authorization failed: Trusted GitHub authenticated session for '{COORDINATOR_GITHUB_LOGIN}' is unavailable.\n"
+        "Local OS usernames, Git config (user.name/email), and self-declared flags are unverified and insufficient for privileged operations.\n"
+        "Failing closed."
+    )
 
 def promote_draft(draft_id, repo_root, coordinator=None):
     authorized, reason = verify_coordinator_authorization(declared_user=coordinator, repo_root=repo_root)

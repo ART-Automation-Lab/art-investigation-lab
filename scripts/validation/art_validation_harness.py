@@ -4,11 +4,22 @@ import sys
 import argparse
 from datetime import datetime, timezone
 
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 PROCESS_OWNERS = {
-    "P01-RFP": "chiranjeevi",
-    "P02-SUPPLIER-DELIVERY": "vrushali",
-    "P03-REPLENISHMENT": "bhushan",
-    "P04-INVOICE-EXCEPTIONS": "ashwin"
+    "P01-RFP": {"chiranjeevi", "chiranjeevi005"},
+    "P02-SUPPLIER-DELIVERY": {"vrushali", "vrushaliapoojary"},
+    "P03-REPLENISHMENT": {"bhushan", "bhushanshenoy07"},
+    "P04-INVOICE-EXCEPTIONS": {"ashwin", "ashwinash19"}
 }
 
 def record_art_test(process_id, test_id, capability, status, notes, screenshot_path, repo_root, actor=None):
@@ -20,11 +31,11 @@ def record_art_test(process_id, test_id, capability, status, notes, screenshot_p
     # Process ownership verification
     if actor:
         actor_clean = actor.strip().lower()
-        expected_owner = PROCESS_OWNERS.get(process_id)
-        if expected_owner and actor_clean != expected_owner:
+        expected_owners = PROCESS_OWNERS.get(process_id, set())
+        if expected_owners and actor_clean not in expected_owners:
             raise PermissionError(
                 f"Process ownership violation: Actor '{actor}' is not authorized to log tests for {process_id}. "
-                f"Assigned owner is '{expected_owner}'."
+                f"Assigned owner is '{sorted(list(expected_owners))[0]}'."
             )
             
     # Execution evidence verification

@@ -205,7 +205,7 @@ class TestIdentityAndEvidence(unittest.TestCase):
             uploaded_by="tester"
         )
         full_path = os.path.abspath(os.path.join(os.getcwd(), meta["storagePath"]))
-        self.assertTrue(full_path.startswith(self.test_dir))
+        self.assertTrue(os.path.normcase(full_path).startswith(os.path.normcase(self.test_dir)))
         self.assertFalse(full_path.startswith("/etc"))
         self.assertNotIn("..", full_path)
 
@@ -345,6 +345,54 @@ class TestIdentityAndEvidence(unittest.TestCase):
         # Verify next SFN bug avoids ART-SFN-001
         next_sfn = generate_bug_id("SFN", legacy_bug_ids)
         self.assertEqual(next_sfn, "ART-SFN-002")
+
+    # ==========================================
+    # WINDOWS CROSS-DRIVE REGRESSION TESTS
+    # ==========================================
+
+    def test_27_windows_cross_drive_path_fallback(self):
+        from unittest.mock import patch
+        sample_bytes = b"sample_cross_drive_bytes"
+        with patch("os.path.relpath", side_effect=ValueError("path is on mount 'C:', start on mount 'D:'")):
+            meta = self.storage_service.store_evidence(
+                investigation_id="INV-20260925-0001",
+                file_bytes=sample_bytes,
+                original_filename="cross_drive_evidence.png",
+                stage="ORIGINAL",
+                uploaded_by="tester"
+            )
+            self.assertIsNotNone(meta["id"])
+            # Storage path falls back safely to absolute path on cross-mount
+            self.assertTrue(os.path.isabs(meta["storagePath"]))
+            self.assertTrue(os.path.exists(meta["storagePath"]))
+            with open(meta["storagePath"], "rb") as fp:
+                self.assertEqual(fp.read(), sample_bytes)
+            # Must still conform to JSON schema
+            self.evidence_validator.validate(meta)
+
+    def test_28_path_traversal_cross_drive_blocked(self):
+        from unittest.mock import patch
+        with patch("os.path.relpath", side_effect=ValueError("path is on mount 'C:', start on mount 'D:'")):
+            # 1. Investigation ID traversal blocked
+            with self.assertRaises(ValueError):
+                self.storage_service.store_evidence(
+                    investigation_id="../../escape",
+                    file_bytes=b"data",
+                    original_filename="test.png",
+                    stage="ORIGINAL",
+                    uploaded_by="tester"
+                )
+            # 2. Dangerous filename sanitized and contained strictly within evidence_root
+            meta = self.storage_service.store_evidence(
+                investigation_id="INV-20260925-0001",
+                file_bytes=b"safe",
+                original_filename="../../../etc/shadow",
+                stage="ORIGINAL",
+                uploaded_by="tester"
+            )
+            norm_storage = os.path.normcase(os.path.abspath(meta["storagePath"]))
+            norm_root = os.path.normcase(os.path.abspath(self.test_dir))
+            self.assertTrue(norm_storage.startswith(norm_root))
 
 
 if __name__ == "__main__":

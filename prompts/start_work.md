@@ -11,16 +11,16 @@ When instructed to "Run prompts/start_work.md" (or "Start work on P0X", "Begin s
 
 ### Step 1: Identify Contributor & Approved Process Scope
 Determine the contributor's identity and assigned process based on user prompt or current context:
-- **Chiranjeevi:** Project Coordinator & Process `P01-RFP` — RFP Requirement Review & Response Coordination  
+- **Chiranjeevi (`Chiranjeevi005`):** Project Coordinator & Process `P01-RFP` — RFP Requirement Review & Response Coordination  
   - *Branch:* `research/chiranjeevi`  
   - *Scope:* `research/procurement/processes/P01-RFP/`
-- **Vrushali:** Process Owner `P02-SUPPLIER-DELIVERY` — Supplier Delivery Confirmation & Delay Escalation  
+- **Vrushali (`VrushaliAPoojary`):** Process Owner `P02-SUPPLIER-DELIVERY` — Supplier Delivery Confirmation & Delay Escalation  
   - *Branch:* `research/vrushali`  
   - *Scope:* `research/procurement/processes/P02-SUPPLIER-DELIVERY/`
-- **Bhushan:** Process Owner `P03-REPLENISHMENT` — Inventory Replenishment & Reorder Exceptions  
+- **Bhushan (`BhushanShenoy07`):** Process Owner `P03-REPLENISHMENT` — Inventory Replenishment & Reorder Exceptions  
   - *Branch:* `research/bhushan`  
   - *Scope:* `research/procurement/processes/P03-REPLENISHMENT/`
-- **Ashwin:** Process Owner `P04-INVOICE-EXCEPTIONS` — Invoice Discrepancy Resolution  
+- **Ashwin (`ashwinash19`):** Process Owner `P04-INVOICE-EXCEPTIONS` — Invoice Discrepancy Resolution  
   - *Branch:* `research/ashwin`  
   - *Scope:* `research/procurement/processes/P04-INVOICE-EXCEPTIONS/`
 
@@ -36,9 +36,9 @@ If unspecified, ask the contributor to confirm their name and assigned process I
    ```bash
    git fetch origin main
    ```
-4. Checkout or switch to the contributor's branch:
+4. Safe, non-destructive branch checkout (never use `checkout -B` or `reset --hard`, which destroy unpushed contributor commits):
    ```bash
-   git checkout -B research/<contributor-name> origin/main
+   git checkout research/<contributor-name>
    ```
 
 ### Step 3: Verify Local Validation Baseline

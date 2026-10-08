@@ -112,8 +112,13 @@ class EvidenceStorageService:
         # Build secure storage directory and path
         target_dir = os.path.join(self.evidence_root, investigation_id)
         # Ensure target_dir stays strictly under evidence_root
-        if not os.path.commonpath([self.evidence_root, target_dir]) == self.evidence_root:
-            raise ValueError("Path traversal attempt detected in target directory resolution.")
+        norm_root = os.path.normcase(os.path.abspath(self.evidence_root))
+        norm_target_dir = os.path.normcase(os.path.abspath(target_dir))
+        try:
+            if not os.path.commonpath([norm_root, norm_target_dir]) == norm_root:
+                raise ValueError("Path traversal attempt detected in target directory resolution.")
+        except ValueError as err:
+            raise ValueError(f"Path traversal attempt detected in target directory resolution: {err}")
 
         os.makedirs(target_dir, exist_ok=True)
 
@@ -121,8 +126,12 @@ class EvidenceStorageService:
         target_file_path = os.path.join(target_dir, canonical_filename)
 
         # Check path traversal
-        if not os.path.commonpath([self.evidence_root, target_file_path]) == self.evidence_root:
-            raise ValueError("Path traversal attempt detected in target file path resolution.")
+        norm_target_file = os.path.normcase(os.path.abspath(target_file_path))
+        try:
+            if not os.path.commonpath([norm_root, norm_target_file]) == norm_root:
+                raise ValueError("Path traversal attempt detected in target file path resolution.")
+        except ValueError as err:
+            raise ValueError(f"Path traversal attempt detected in target file path resolution: {err}")
 
         # Immutability Guard: Never overwrite
         if os.path.exists(target_file_path):
@@ -150,7 +159,12 @@ class EvidenceStorageService:
             raise IOError("Evidence verification failed: stored bytes SHA-256 does not match source hash.")
 
         timestamp = captured_at or datetime.now(timezone.utc).isoformat()
-        rel_storage_path = os.path.relpath(target_file_path, os.getcwd())
+        try:
+            rel_storage_path = os.path.relpath(target_file_path, os.getcwd())
+        except ValueError:
+            # On Windows, os.path.relpath raises ValueError if target_file_path and os.getcwd() are on different drive mounts.
+            # Fall back safely to the normalized absolute target path (which remains strictly verified under evidence_root).
+            rel_storage_path = os.path.abspath(target_file_path)
 
         # Construct Evidence metadata dictionary
         evidence_metadata = {

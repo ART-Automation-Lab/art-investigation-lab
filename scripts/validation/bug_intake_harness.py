@@ -7,6 +7,17 @@ import hashlib
 import argparse
 from datetime import datetime, timezone
 
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 CANONICAL_MODULES = {'AGENT', 'GOV', 'SFN', 'ORCHESTRATOR', 'ORC', 'TOOL', 'TOOLBUILDER', 'AGENTX', 'ADK', 'TRIGGER', 'MCP', 'CRED'}
 
 MODULE_TO_FEATURE = {
@@ -26,9 +37,13 @@ MODULE_TO_FEATURE = {
 
 CONTRIBUTOR_PROCESS_MAP = {
     'chiranjeevi': 'P01',
+    'chiranjeevi005': 'P01',
     'vrushali': 'P02',
+    'vrushaliapoojary': 'P02',
     'bhushan': 'P03',
-    'ashwin': 'P04'
+    'bhushanshenoy07': 'P03',
+    'ashwin': 'P04',
+    'ashwinash19': 'P04'
 }
 
 def create_slug(title):
