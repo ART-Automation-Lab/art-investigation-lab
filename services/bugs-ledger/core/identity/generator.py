@@ -19,11 +19,51 @@ from typing import Set, Iterable, Optional
 from datetime import datetime, timezone
 
 # Canonical approved module codes recognized from repository evidence
-CANONICAL_MODULES = {"AGENT", "GOV", "SFN", "ORCHESTRATOR", "ORC", "TOOL", "TOOLBUILDER", "AGENTX", "ADK"}
+CANONICAL_MODULES = {
+    "AGENT", "GOV", "SFN", "ORCHESTRATOR", "ORC", "TOOL", "TOOLBUILDER",
+    "AGENTX", "ADK", "MCP", "TRIGGER", "TRIGGERS", "CRED", "CREDENTIAL",
+    "CREDENTIALS", "LIVE", "HIL"
+}
+
+FEATURE_MODULE_CODES = {
+    "AGENT LAB": "AGENT",
+    "AGENT": "AGENT",
+    "ORCHESTRATOR": "ORCHESTRATOR",
+    "ORC": "ORCHESTRATOR",
+    "TOOL BUILDER": "TOOL",
+    "TOOL": "TOOL",
+    "TOOLBUILDER": "TOOL",
+    "TB": "TOOL",
+    "MCP SERVERS": "MCP",
+    "MCP": "MCP",
+    "TRIGGERS": "TRIGGER",
+    "TRIGGER": "TRIGGER",
+    "CREDENTIAL MANAGER": "CREDENTIAL",
+    "CREDENTIALS": "CREDENTIAL",
+    "CREDENTIAL": "CREDENTIAL",
+    "CRED": "CREDENTIAL",
+    "SERVERLESS FUNCTIONS": "SFN",
+    "SERVERLESS": "SFN",
+    "SFN": "SFN",
+    "GOVERNANCE": "GOV",
+    "GOV": "GOV",
+    "HUMAN-IN-THE-LOOP / APPROVALS": "HIL",
+    "HUMAN-IN-THE-LOOP - APPROVALS": "HIL",
+    "HUMAN-IN-THE-LOOP": "HIL",
+    "HIL": "HIL",
+    "LIVE CONNECT": "LIVE",
+    "LIVE": "LIVE",
+    "ART DEPLOYMENT KIT (ADK)": "ADK",
+    "ART DEVELOPMENT KIT (ADK)": "ADK",
+    "ADK": "ADK",
+    "AGENT X": "AGENTX",
+    "AGENTX": "AGENTX",
+}
 
 # Patterns
 INV_ID_REGEX = re.compile(r"^INV-(?P<date>\d{8})-(?P<seq>\d{4})$")
 BUG_ID_REGEX = re.compile(r"^ART-(?P<mod>[A-Z]+)-(?P<seq>\d{3})$")
+FEAT_ID_REGEX = re.compile(r"^ART-FEAT-(?P<mod>[A-Z]+)-(?P<seq>\d{3})$")
 EVD_ID_REGEX = re.compile(r"^EVD-[A-Z0-9]{12}$")
 
 
@@ -108,6 +148,57 @@ def generate_bug_id(
     candidate_id = f"{effective_prefix}-{module_norm}-{next_seq:03d}"
     if candidate_id in existing_ids:
         raise ValueError(f"Candidate ID '{candidate_id}' already exists in allocated set.")
+    return candidate_id
+
+
+def generate_feature_id(
+    module: str,
+    existing_ids: Iterable[str],
+    approved_modules: Optional[Set[str]] = None,
+    prefix: str = "ART-FEAT",
+    is_test: bool = False
+) -> str:
+    """
+    Generates the next sequential Canonical ART Feature ID:
+    ART-FEAT-<MODULE>-<3-DIGIT-SEQUENCE> or TEST-ART-FEAT-<MODULE>-<3-DIGIT-SEQUENCE>
+    
+    Rules:
+    - Scoped by module code (e.g. AGENT, GOV, SFN, ORCHESTRATOR).
+    - Module may be passed as module code or full feature name; resolved via FEATURE_MODULE_CODES.
+    - Module must be in the approved_modules set (defaults to CANONICAL_MODULES).
+    - Never reuses an existing ID.
+    - Test/harness records can specify is_test=True or prefix='TEST-ART-FEAT'.
+    """
+    valid_modules = approved_modules if approved_modules is not None else CANONICAL_MODULES
+
+    if not module or not isinstance(module, str):
+        raise ValueError("Module must be a non-empty string.")
+
+    raw_mod = module.strip().upper()
+    module_norm = FEATURE_MODULE_CODES.get(raw_mod, raw_mod)
+    if module_norm not in valid_modules or module_norm == "NOT PROVIDED":
+        raise ValueError(f"Module '{module}' is not an approved canonical module code. Allowed: {sorted(list(valid_modules))}")
+
+    effective_prefix = "TEST-ART-FEAT" if is_test else (prefix or "ART-FEAT").strip().upper()
+    regex = re.compile(rf"^{re.escape(effective_prefix)}-(?P<mod>[A-Z]+)-(?P<seq>\d{{3}})$")
+
+    highest_seq = 0
+    for eid in existing_ids:
+        if not isinstance(eid, str):
+            continue
+        m = regex.match(eid.strip())
+        if m and m.group("mod") == module_norm:
+            seq = int(m.group("seq"))
+            if seq > highest_seq:
+                highest_seq = seq
+
+    next_seq = highest_seq + 1
+    if next_seq > 999:
+        raise OverflowError(f"Sequence overflow for feature module '{module_norm}'. Exceeded 999.")
+
+    candidate_id = f"{effective_prefix}-{module_norm}-{next_seq:03d}"
+    if candidate_id in existing_ids:
+        raise ValueError(f"Candidate Feature ID '{candidate_id}' already exists in allocated set.")
     return candidate_id
 
 

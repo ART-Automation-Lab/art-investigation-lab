@@ -99,6 +99,9 @@ class EvidenceSyncError(AzureDevOpsError):
         super().__init__(code="EVIDENCE_SYNC_FAILED", message=message, status_code=status_code)
 
 
+# Confirmed Epic ID for Bug Bounty
+AZURE_BUG_BOUNTY_EPIC_ID: int = 68782
+
 # Confirmed Feature Work Item IDs under Epic 68782 (ART - Internal Bug Bounty)
 AZURE_MODULE_FEATURE_MAP: Dict[str, int] = {
     "Agent Lab": 68783,
@@ -115,6 +118,24 @@ AZURE_MODULE_FEATURE_MAP: Dict[str, int] = {
     "Agent X": 68960,
 }
 
+# Confirmed Epic ID and Feature Work Item IDs under Epic 69099 (Backlog Tickets)
+AZURE_BACKLOG_EPIC_ID: int = 69099
+
+AZURE_BACKLOG_MODULE_FEATURE_MAP: Dict[str, int] = {
+    "Agent Lab": 69102,
+    "Orchestrator": 69103,
+    "Tool Builder": 69104,
+    "MCP Servers": 69105,
+    "Triggers": 69106,
+    "Credential Manager": 69107,
+    "Serverless Functions": 69108,
+    "Governance": 69109,
+    "Human-in-the-Loop / Approvals": 69110,
+    "Live Connect": 69111,
+    "ART Development Kit (ADK)": 69112,
+    "Agent X": 69113,
+}
+
 # Supported aliases mapping canonical ticket module codes to Azure Feature names
 AZURE_MODULE_ALIASES: Dict[str, str] = {
     # Canonical 3-letter codes used in ART Product Resolution System:
@@ -122,24 +143,34 @@ AZURE_MODULE_ALIASES: Dict[str, str] = {
     "SFN": "Serverless Functions",
     "GOV": "Governance",
     "ORC": "Orchestrator",
-    # Pass-through exact names (case-insensitive keys normalized in resolver)
-    "AGENT LAB": "Agent Lab",
     "ORCHESTRATOR": "Orchestrator",
-    "TOOL BUILDER": "Tool Builder",
     "TOOL": "Tool Builder",
     "TOOLBUILDER": "Tool Builder",
     "TB": "Tool Builder",
+    "TOOL BUILDER": "Tool Builder",
+    "MCP": "MCP Servers",
     "MCP SERVERS": "MCP Servers",
+    "TRIGGER": "Triggers",
     "TRIGGERS": "Triggers",
+    "CRED": "Credential Manager",
+    "CREDENTIAL": "Credential Manager",
+    "CREDENTIALS": "Credential Manager",
     "CREDENTIAL MANAGER": "Credential Manager",
+    "SERVERLESS": "Serverless Functions",
     "SERVERLESS FUNCTIONS": "Serverless Functions",
     "GOVERNANCE": "Governance",
+    "HIL": "Human-in-the-Loop / Approvals",
+    "HUMAN-IN-THE-LOOP": "Human-in-the-Loop / Approvals",
     "HUMAN-IN-THE-LOOP / APPROVALS": "Human-in-the-Loop / Approvals",
+    "HUMAN-IN-THE-LOOP - APPROVALS": "Human-in-the-Loop / Approvals",
+    "LIVE": "Live Connect",
     "LIVE CONNECT": "Live Connect",
-    "ART DEVELOPMENT KIT (ADK)": "ART Development Kit (ADK)",
     "ADK": "ART Development Kit (ADK)",
-    "AGENT X": "Agent X",
+    "ART DEVELOPMENT KIT (ADK)": "ART Development Kit (ADK)",
+    "ART DEPLOYMENT KIT (ADK)": "ART Development Kit (ADK)",
     "AGENTX": "Agent X",
+    "AGENT X": "Agent X",
+    "AGENT LAB": "Agent Lab",
 }
 
 
@@ -147,6 +178,7 @@ class AzureFeatureRouter:
     """
     Dedicated Azure DevOps module-to-Feature routing boundary.
     Fails closed if the module cannot be resolved to an Azure Feature Work Item ID.
+    Supports both Bug Bounty (Epic #68782) and Backlog Tickets (Epic #69099).
     """
 
     @classmethod
@@ -175,6 +207,32 @@ class AzureFeatureRouter:
             )
 
         return AZURE_MODULE_FEATURE_MAP[feature_name]
+
+    @classmethod
+    def resolve_backlog_feature_id(cls, module_name: Optional[str]) -> int:
+        if not module_name or not isinstance(module_name, str):
+            raise AzureDevOpsError(
+                code="AZURE_PARENT_NOT_CONFIGURED",
+                message="Cannot export feature request to Azure DevOps: Module is not provided or empty.",
+                status_code=400
+            )
+
+        norm_key = module_name.strip().upper()
+        feature_name = AZURE_MODULE_ALIASES.get(norm_key)
+        if not feature_name:
+            for fn in AZURE_BACKLOG_MODULE_FEATURE_MAP:
+                if fn.upper() == norm_key:
+                    feature_name = fn
+                    break
+
+        if not feature_name or feature_name not in AZURE_BACKLOG_MODULE_FEATURE_MAP:
+            raise AzureDevOpsError(
+                code="AZURE_PARENT_NOT_CONFIGURED",
+                message=f"Cannot export feature request to Azure DevOps: No Azure Backlog Feature mapping configured for module '{module_name}'.",
+                status_code=400
+            )
+
+        return AZURE_BACKLOG_MODULE_FEATURE_MAP[feature_name]
 
 
 class ArtAssigneeRegistry:
