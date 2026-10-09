@@ -85,6 +85,8 @@ Human review is required when:
 - the agent cannot reproduce the result;
 - a user asks for any write action outside this scope.
 
+Detailed human review routing, policy rules, and timeout blocking behaviors are specified in [`./governance.md`](./governance.md).
+
 ## 5. Cross-process handoffs
 - **P02:** supplier delivery status and lead-time information may be an input; P03 does not own supplier escalation.
 - **P04:** goods receipt/invoice discrepancies are outside scope; P03 may mark supply records as uncertain if approved source data indicates a discrepancy.
