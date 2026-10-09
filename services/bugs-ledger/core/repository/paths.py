@@ -40,6 +40,7 @@ FEATURE_TO_FOLDER_MAP: Dict[str, str] = {
     "Human-in-the-Loop - Approvals": "Human-in-the-Loop - Approvals",
     "Live Connect": "Live Connect",
     "ART Deployment Kit (ADK)": "ART Deployment Kit (ADK)",
+    "ART Development Kit (ADK)": "ART Deployment Kit (ADK)",
     "Agent X": "Agent X",
 }
 
@@ -76,6 +77,7 @@ FEATURE_ALIASES: Dict[str, str] = {
     "TRIGGER": "Triggers",
     "CREDENTIAL MANAGER": "Credential Manager",
     "CREDENTIALS": "Credential Manager",
+    "CREDENTIAL": "Credential Manager",
     "CRED": "Credential Manager",
     "SERVERLESS FUNCTIONS": "Serverless Functions",
     "SERVERLESS": "Serverless Functions",
@@ -88,9 +90,9 @@ FEATURE_ALIASES: Dict[str, str] = {
     "HIL": "Human-in-the-Loop / Approvals",
     "LIVE CONNECT": "Live Connect",
     "LIVE": "Live Connect",
-    "ART DEPLOYMENT KIT (ADK)": "ART Deployment Kit (ADK)",
-    "ART DEVELOPMENT KIT (ADK)": "ART Deployment Kit (ADK)",
-    "ADK": "ART Deployment Kit (ADK)",
+    "ART DEPLOYMENT KIT (ADK)": "ART Development Kit (ADK)",
+    "ART DEVELOPMENT KIT (ADK)": "ART Development Kit (ADK)",
+    "ADK": "ART Development Kit (ADK)",
     "AGENT X": "Agent X",
     "AGENTX": "Agent X",
 }
@@ -182,3 +184,55 @@ def resolve_bug_storage_path(
         path = f"bugs/{folder_name}/{clean_bug_id}/"
 
     return BugStoragePath(path)
+
+
+class FeatureStoragePath(str):
+    """
+    A path string representing a resolved feature storage directory.
+    Behaves as a string while providing flexible equality checking with or without trailing slash.
+    """
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, str):
+            return super().__eq__(other) or self.rstrip("/") == other.rstrip("/")
+        return super().__eq__(other)
+
+    def __hash__(self) -> int:
+        return hash(self.rstrip("/"))
+
+
+def resolve_feature_storage_path(
+    feature: str,
+    feature_id: str,
+    slug: Optional[str] = None,
+    base_dir: Optional[str] = None
+) -> FeatureStoragePath:
+    """
+    Resolves the canonical feature storage path under its Azure DevOps feature folder.
+    
+    Pattern:
+    features/<canonical-feature-folder>/<feature_id>__<slug>/
+    or if slug is None:
+    features/<canonical-feature-folder>/<feature_id>/
+    
+    Or if base_dir is supplied:
+    <base_dir>/<canonical-feature-folder>/<feature_id>__<slug>/
+    
+    Fails closed (raises ValueError) if feature is unsupported or unknown.
+    """
+    if not feature_id or not isinstance(feature_id, str):
+        raise ValueError(f"feature_id must be a non-empty string, got: {feature_id!r}")
+
+    clean_feature_id = feature_id.strip().strip("/")
+    if not clean_feature_id:
+        raise ValueError("feature_id cannot be empty or only slashes.")
+
+    folder_name = resolve_feature_folder(feature)
+    dir_name = f"{clean_feature_id}__{slug.strip()}" if slug and slug.strip() else clean_feature_id
+
+    if base_dir:
+        clean_base = base_dir.rstrip("/")
+        path = f"{clean_base}/{folder_name}/{dir_name}/"
+    else:
+        path = f"features/{folder_name}/{dir_name}/"
+
+    return FeatureStoragePath(path)

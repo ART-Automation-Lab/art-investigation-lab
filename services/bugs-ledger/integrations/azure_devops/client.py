@@ -668,3 +668,194 @@ class AzureDevOpsClient:
                 message=f"Azure DevOps unexpected response ({status_code}): {body_text}",
                 status_code=502
             )
+
+    def _map_feature_to_patch(
+        self,
+        feature: Dict[str, Any],
+        canonical_feature_id: str,
+        parent_work_item_id: Optional[int] = None,
+        assigned_to: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        import html
+        title = feature.get("title", f"Feature {canonical_feature_id}")
+        module = feature.get("module", "Not provided")
+        classification = feature.get("classification", "NEW_FEATURE")
+        prob = feature.get("problem_opportunity", "")
+        curr = feature.get("current_behavior", "")
+        prop = feature.get("proposed_behavior", "")
+        biz = feature.get("business_impact", "")
+        ux = feature.get("user_experience", "")
+        guidance = feature.get("implementation_guidance", "")
+        related = feature.get("related_bugs", [])
+        criteria = feature.get("acceptance_criteria", [])
+
+        desc_parts = [
+            f"<div><strong>Classification:</strong> {html.escape(str(classification))}</div>",
+            f"<div><strong>Module:</strong> {html.escape(str(module))}</div>",
+            f"<h3>Problem / Opportunity</h3><div>{html.escape(str(prob))}</div>"
+        ]
+        if curr:
+            desc_parts.append(f"<h3>Current Behavior</h3><div>{html.escape(str(curr))}</div>")
+        if prop:
+            desc_parts.append(f"<h3>Proposed Behavior</h3><div>{html.escape(str(prop))}</div>")
+        if biz:
+            desc_parts.append(f"<h3>Business Impact</h3><div>{html.escape(str(biz))}</div>")
+        if ux:
+            desc_parts.append(f"<h3>User Experience</h3><div>{html.escape(str(ux))}</div>")
+        if guidance:
+            desc_parts.append(f"<h3>Implementation Guidance</h3><div>{html.escape(str(guidance))}</div>")
+        if related:
+            rel_str = ", ".join(str(r) for r in related)
+            desc_parts.append(f"<h3>Related Bugs / Dependencies</h3><div>{html.escape(rel_str)}</div>")
+
+        description_html = "".join(desc_parts)
+
+        ac_items = []
+        if isinstance(criteria, list):
+            for c in criteria:
+                ac_items.append(f"<li>{html.escape(str(c))}</li>")
+        elif criteria:
+            ac_items.append(f"<li>{html.escape(str(criteria))}</li>")
+        ac_html = f"<ol>{''.join(ac_items)}</ol>" if ac_items else "<div>Pending formal acceptance criteria.</div>"
+
+        tags = [f"ART:{canonical_feature_id}", canonical_feature_id, "ART", "Feature", str(classification)]
+        if module and module != "Not provided":
+            tags.append(str(module).lower())
+        tags_str = "; ".join(dict.fromkeys(tags))
+
+        patch: List[Dict[str, Any]] = [
+            {
+                "op": "add",
+                "path": "/fields/System.Title",
+                "value": f"[{canonical_feature_id}] {title}"
+            },
+            {
+                "op": "add",
+                "path": "/fields/System.Description",
+                "value": description_html
+            },
+            {
+                "op": "add",
+                "path": "/fields/Microsoft.VSTS.Common.AcceptanceCriteria",
+                "value": ac_html
+            },
+            {
+                "op": "add",
+                "path": "/fields/System.Tags",
+                "value": tags_str
+            },
+            {
+                "op": "add",
+                "path": "/fields/System.History",
+                "value": f"Created automatically by ART Feature Backlog Pipeline for {canonical_feature_id}."
+            },
+            {
+                "op": "add",
+                "path": "/fields/Microsoft.VSTS.Common.ValueArea",
+                "value": "Business"
+            }
+        ]
+
+        pri_val = feature.get("priority", 2)
+        try:
+            pri_int = int(pri_val)
+            patch.append({
+                "op": "add",
+                "path": "/fields/Microsoft.VSTS.Common.Priority",
+                "value": pri_int
+            })
+        except (ValueError, TypeError):
+            pass
+
+        if assigned_to and str(assigned_to).strip().upper() not in ("UNASSIGNED", "NOT PROVIDED", "NONE"):
+            assignee = assigned_to
+        else:
+            assignee = self.config.assigned_to
+
+        if assignee:
+            patch.append({
+                "op": "add",
+                "path": "/fields/System.AssignedTo",
+                "value": str(assignee).strip()
+            })
+
+        if parent_work_item_id:
+            org_enc = quote(self.config.organization, safe="")
+            proj_enc = quote(self.config.project, safe="")
+            parent_url = f"https://dev.azure.com/{org_enc}/{proj_enc}/_apis/wit/workItems/{parent_work_item_id}"
+            patch.append({
+                "op": "add",
+                "path": "/relations/-",
+                "value": {
+                    "rel": "System.LinkTypes.Hierarchy-Reverse",
+                    "url": parent_url,
+                    "attributes": {
+                        "comment": "Parent Feature link established during creation under Backlog Tickets"
+                    }
+                }
+            })
+
+        return patch
+
+    def create_user_story(
+        self,
+        feature: Dict[str, Any],
+        canonical_feature_id: str,
+        parent_work_item_id: Optional[int] = None,
+        assigned_to: Optional[str] = None,
+        evidence_paths: Optional[List[str]] = None
+    ) -> AzureWorkItemResult:
+        """
+        Creates an Azure DevOps User Story work item using JSON-Patch.
+        """
+        # First check remote reconciliation
+        reconciled = self.find_existing_work_item_by_art_id(canonical_feature_id)
+        if reconciled:
+            if evidence_paths:
+                self.sync_evidence_attachments(reconciled.work_item_id, canonical_feature_id, evidence_paths)
+            return reconciled
+
+        org_enc = quote(self.config.organization, safe="")
+        proj_enc = quote(self.config.project, safe="")
+        url = (
+            f"https://dev.azure.com/{org_enc}/{proj_enc}"
+            f"/_apis/wit/workitems/$User%20Story?api-version={self.config.api_version}"
+        )
+        headers = {
+            "Authorization": self._get_auth_header(),
+            "Content-Type": "application/json-patch+json"
+        }
+        patch_payload = self._map_feature_to_patch(
+            feature,
+            canonical_feature_id,
+            parent_work_item_id=parent_work_item_id,
+            assigned_to=assigned_to
+        )
+
+        client = self._external_client or httpx.Client(timeout=self.config.timeout_seconds)
+        should_close = self._external_client is None
+
+        try:
+            response = client.post(url, headers=headers, json=patch_payload)
+            res = self._handle_response(response, canonical_feature_id)
+            if evidence_paths:
+                self.sync_evidence_attachments(res.work_item_id, canonical_feature_id, evidence_paths)
+            return res
+        except httpx.TimeoutException:
+            raise AzureDevOpsError(
+                code="TIMEOUT",
+                message="Timeout connecting to Azure DevOps REST API.",
+                status_code=504
+            )
+        except AzureDevOpsError:
+            raise
+        except Exception as e:
+            clean_err = self._mask_secrets(str(e))
+            raise AzureDevOpsError(
+                code="EXTERNAL_SERVICE_ERROR",
+                message=f"Azure DevOps integration communication error: {clean_err}",
+                status_code=502
+            )
+        finally:
+            if should_close:
+                client.close()
