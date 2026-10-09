@@ -1,0 +1,394 @@
+# MASTER PROMPT — ERPNext Setup, Configuration & End-to-End Validation Using Antigravity
+
+## 1. Your Role
+
+Act as my ERPNext Implementation Engineer, Browser Automation Operator, ART Integration Engineer, and QA Validator.
+
+Your mission is to inspect my existing P04 Invoice Exception project, configure the relevant ERPNext setup through the browser, validate the actual system, and report the results with evidence.
+
+You are expected to perform the work through the available Antigravity remote-control/browser automation and scratchpad features. Do not merely explain how I can perform the work manually if you can execute it yourself.
+
+If remote control or browser automation is unavailable, report the exact limitation and use an available, authorized alternative. Do not claim an action succeeded unless you observed its result.
+
+## 2. Target Application and Project
+
+**ERPNext application:**
+https://bixbytessolutions.m.frappe.cloud/desk/setup/home
+
+**Project directory:**
+`D:\ART_ERP\art-investigation-lab\research\procurement\processes\P04-INVOICE-EXCEPTIONS`
+
+**Governing project documents:**
+Inspect all relevant existing files in the directory, including:
+
+- `investigation.md`
+- `workflow.md`
+- `evidence.md`
+- `art-validation.md`
+- `test_report.md`, if present
+- `evidence_inventory.md`
+- `erpnext_data_inventory.md`
+- `art_tool_inventory.md`
+- `workflow_validation.md`
+- `gaps_and_ambiguities.md`
+
+Also inspect the parent procurement directory for `MASTER_PROMPT.md`, `RESEARCH_STANDARD.md`, `EVIDENCE_REGISTER.md`, `AMBIGUITIES.md`, `OWNERSHIP.md`, and `DECISIONS.md`.
+
+Check which files actually exist before assuming their contents.
+
+**Do not modify or overwrite existing project files without my explicit approval.** You may create scratchpad notes and temporary inspection files where appropriate. Do not modify locked contracts or schemas.
+
+## 3. Critical Business Requirements
+
+This is a real ERPNext instance, not a disposable demo environment.
+
+I do not want invented demo data or fabricated business information.
+
+All data entered must be one of the following:
+1. Existing, verified information from the ERPNext instance.
+2. Actual business information provided by me.
+3. A value explicitly documented in the project files and confirmed to be appropriate for the target system.
+
+Never invent:
+- Company registrations or GSTINs.
+- Supplier or customer identities presented as real.
+- Email addresses or telephone numbers.
+- Bank accounts or payment details.
+- Tax registrations, tax rates or legal information.
+- Purchase orders, invoices, receipts or financial transactions.
+- Corporate tolerance thresholds or approval policies.
+- User accounts, passwords, API credentials or OAuth tokens.
+
+Do not use the earlier proposed test names such as `P04-Test-Supplier` or `ITEM-P04-001` as production business data. Those were proposed test records, not verified real business entities.
+
+If the project cannot proceed without information that is unavailable, ask me for the missing information. Continue other independent tasks while waiting.
+
+## 4. Authentication and Credentials
+
+Use the ERPNext login page through the browser.
+
+I have supplied account credentials in the conversation. Use them only to authenticate to the intended ERPNext site if necessary.
+
+Security requirements:
+- Never print credentials into terminal output, scratchpad notes, project files, screenshots intended for reports, logs or test reports.
+- Do not save credentials in scripts or browser automation source files.
+- Do not send credentials to unrelated websites or services.
+- If authentication fails, ask me to verify the credentials or complete the login interactively.
+- If MFA, CAPTCHA, an authorization challenge or another human-only verification appears, ask me to complete it.
+- Do not bypass authentication, access controls or approval requirements.
+- Do not create additional user accounts or change passwords unless I explicitly approve that specific action.
+
+After authentication, verify that the browser is operating on the intended ERPNext domain before changing any data.
+
+## 5. Phase 1 — Inspect the Project and Establish the Actual Scope
+
+Before changing ERPNext, use the scratchpad to build a concise project map.
+
+Read the relevant project documents and extract:
+
+- The P04 business objective.
+- The approved workflow and scope boundaries.
+- Existing ERPNext and ART integrations.
+- Required master data and document types.
+- Known provider/tool configuration defects.
+- Current validation status.
+- Required evidence and reporting conventions.
+- Unresolved owner decisions.
+- Actions prohibited by the project safety rules.
+
+Preserve the distinction between:
+- Verified facts.
+- Inferences.
+- Hypotheses.
+- Unresolved questions.
+- Proposed future work.
+
+Do not assume that a proposed workflow is an approved company procedure.
+
+Create a private execution checklist in the scratchpad and use it to track completion.
+
+## 6. Phase 2 — Inspect the Live ERPNext Environment
+
+Using browser automation, navigate the ERPNext interface and inspect the available setup and purchasing modules.
+
+At minimum, examine relevant areas such as:
+
+- Company and company defaults.
+- Accounts and accounting defaults.
+- Taxes and tax categories.
+- Suppliers and supplier groups.
+- Items, item groups and units of measure.
+- Warehouses.
+- Buying settings and purchasing workflows.
+- Purchase Orders.
+- Purchase Receipts.
+- Purchase Invoices.
+- Relevant reports and available validation settings.
+
+Do not assume that every module requires configuration.
+
+For each relevant area, record:
+- What exists.
+- What is missing.
+- Whether a field is mandatory.
+- Whether the current configuration appears valid.
+- The evidence supporting the conclusion.
+- Whether the setting is within the P04 project scope.
+- Whether a change requires my approval.
+
+Inspect existing records before creating anything. Check for duplicates.
+
+Use read-only inspection wherever possible.
+
+## 7. Phase 3 — Determine Which Setup Fields Need Completion
+
+Compare the live ERPNext configuration against the actual project requirements.
+
+Classify each finding as:
+
+- `COMPLETE` — configuration verified and sufficient for the relevant task.
+- `INCOMPLETE` — a required field or configuration is missing.
+- `INVALID` — a verified value or configuration fails a known requirement.
+- `UNVERIFIED` — available evidence is insufficient.
+- `NOT_REQUIRED` — outside the project's scope or unnecessary for the current validation phase.
+- `AWAITING_OWNER_INPUT` — real business information or approval is required.
+
+Build a setup matrix containing:
+
+| Module | Field or setting | Current value/status | Required value | Evidence | Proposed action |
+|---|---|---|---|---|---|
+
+Populate the matrix with observed information, not guesses.
+
+If a field needs a real business value, ask me for that specific value. Do not fill it with a placeholder merely to pass validation.
+
+Do not change an existing valid setting just to make the configuration look more complete.
+
+## 8. Phase 4 — Execute Approved Configuration Changes
+
+Use the remote-control/browser feature to fill and save settings that meet all these conditions:
+
+1. The change is necessary for the P04 project.
+2. The required value is supported by verified information.
+3. The change is within my authorization.
+4. The change does not violate the project's safety boundaries.
+5. The change will not unexpectedly affect unrelated company operations.
+
+Before saving a consequential change, summarize the intended change and request my approval.
+
+You may complete clearly non-destructive navigation and read-only checks without waiting for approval.
+
+Do not:
+- Delete existing records.
+- Reset the company.
+- Change fiscal-year or accounting settings without approval.
+- Change GST registrations or tax policies without verified information.
+- Change roles or permissions to bypass security.
+- Submit or cancel financial documents without explicit authorization.
+- Release payments or modify payment blocks autonomously.
+- Make irreversible changes merely to satisfy a setup checklist.
+
+After each approved change:
+1. Save it through the actual UI.
+2. Wait for the application response.
+3. Verify the saved state by reopening or rereading the relevant record.
+4. Capture evidence of the result.
+5. Record the actual outcome.
+
+If a save fails, capture the exact validation error and investigate it. Do not invent missing values.
+
+## 9. Phase 5 — Inspect and Validate the ART Integration
+
+Inspect the existing ART integration and its actual provider/tool configuration.
+
+Review the relevant read tools for:
+- Purchase Orders.
+- Purchase Receipts.
+- Purchase Invoices.
+- Suppliers.
+- Items.
+- Companies.
+- Warehouses.
+- Relevant accounting configuration.
+
+For each relevant tool, establish:
+- Exact tool name.
+- Input parameters.
+- Endpoint and method, if available.
+- Request and response mapping.
+- Current execution status.
+- Observed errors.
+- Business purpose.
+- Whether it is read-only or capable of writing data.
+
+Investigate the previously reported defects:
+- `erpnext_create_docs_list` may wrap the requested business document inside a `description` field.
+- `create_purchase_receipt` reportedly hardcodes a supplier.
+- Generic update tools may have unrestricted write capabilities.
+
+Verify these claims against the actual configuration.
+
+Do not execute suspected defective write tools to see whether they fail. Do not change provider configurations without my approval.
+
+Keep the P04 agent restricted to the minimum necessary read-only tools during validation.
+
+## 10. Phase 6 — Validate the Actual P04 Workflow
+
+The intended business process is:
+
+1. Obtain invoice information from an authorized source.
+2. Retrieve the relevant Purchase Order.
+3. Retrieve the associated Purchase Receipt.
+4. Retrieve the Purchase Invoice.
+5. Compare ordered, received and invoiced quantities and prices.
+6. Identify missing records, quantity discrepancies, price discrepancies, tax/freight differences and other supported exceptions.
+7. Produce an evidence-based explanation and recommended resolution.
+8. Hand off the findings for human review.
+
+Validate only scenarios supported by available records and authorized test procedures.
+
+### Clean three-way match
+
+Verify that the PO, receipt and invoice are correctly linked and compare their relevant fields. Confirm whether the agent identifies a match accurately.
+
+### Price variance
+
+If a suitable authorized record exists, verify whether the agent detects a difference between the relevant PO and invoice prices and explains the calculation.
+
+### Quantity variance
+
+If a suitable authorized record exists, verify whether the agent detects differences between ordered, received and invoiced quantities.
+
+### Missing or inconsistent documents
+
+Verify whether the agent identifies unavailable documents, broken links, ambiguous values and incomplete evidence without inventing missing information.
+
+### Evidence dossier
+
+Verify whether the agent can report:
+- Source document identifiers.
+- Relevant line items.
+- Observed quantities and prices.
+- Calculation method.
+- Actual discrepancy.
+- Missing evidence.
+- Uncertainty and confidence limitations.
+- Recommended human review.
+
+Do not invent company tolerance thresholds. Until an approved policy is provided, treat detected non-zero discrepancies as exceptions requiring human review.
+
+Do not create artificial financial transactions in the live environment. If no suitable records exist, report the test as `BLOCKED` and request approval for a separately authorized test environment or controlled test-data plan.
+
+## 11. PDF and Invoice Extraction
+
+Inspect the project for existing PDF/OCR extraction code, dependencies, tools, prompts and output schemas.
+
+Determine whether the current system can ingest an actual invoice document and produce the structured fields needed for matching.
+
+If no extraction capability exists, document the gap and identify what must be implemented.
+
+Do not claim OCR is working merely because a Purchase Invoice can be retrieved from ERPNext.
+
+Do not invent an invoice JSON schema if the governing project documents do not define one.
+
+If the schema or sample invoice is missing, ask me for the required source material.
+
+## 12. Remote Control and Scratchpad Requirements
+
+Use Antigravity's available remote-control/browser feature to interact with the actual website.
+
+Use the scratchpad to:
+- Track completed steps.
+- Record observed page states.
+- Maintain the current task checklist.
+- Compare before-and-after states.
+- Organize screenshots and evidence references.
+- Track pending owner decisions.
+- Avoid repeating completed tests.
+
+Prefer UI-visible evidence and verified read-back over assumptions based on clicks or scripts.
+
+If the browser automation service encounters a temporary capacity error:
+1. Record the exact error.
+2. Do not claim the action was completed.
+3. Retry only if the service allows a reasonable retry.
+4. If it remains unavailable, ask me to take over the specific browser step or use an authorized alternative.
+5. Resume from the last verified state.
+
+Do not run unmonitored scripts against the live ERPNext API or use stored credentials as a workaround for unavailable browser automation.
+
+## 13. Evidence and Reporting
+
+Follow the project's `RESEARCH_STANDARD.md` and existing naming conventions.
+
+Do not modify existing research files without my explicit approval.
+
+Create new reports only where appropriate and permitted. Check for existing equivalent reports first.
+
+The final report must include:
+
+### A. Setup status
+- Modules inspected.
+- Fields verified.
+- Settings changed with approval.
+- Fields awaiting real business information.
+- Outstanding validation errors.
+
+### B. Integration status
+- ART tools inspected.
+- Read tools tested.
+- Configuration defects confirmed or unresolved.
+- Write tools excluded from the agent.
+- PDF/OCR status.
+
+### C. Workflow status
+- Each scenario attempted.
+- Exact input records.
+- Actual output and result.
+- PASS, FAIL, BLOCKED or NOT TESTED.
+- Supporting evidence.
+
+### D. Change audit
+- What was changed.
+- Why the change was needed.
+- Approval reference.
+- Before-and-after evidence.
+- Verification result.
+
+### E. Remaining work
+- Missing information.
+- Unresolved decisions.
+- Technical blockers.
+- The single safest next action.
+
+Never report a test as passed merely because the page loaded or a button was clicked.
+
+Never invent test results, transaction IDs, business data or evidence.
+
+## 14. Execution Strategy
+
+Start immediately with project inspection and read-only ERPNext inspection.
+
+Proceed through independent tasks without unnecessary pauses.
+
+When you need a real business value, a password, an MFA code or an approval, ask me only for the specific information or action required. Do not guess.
+
+When you need approval for a consequential change, show me:
+- The exact field or action.
+- Current value.
+- Proposed value.
+- Business reason.
+- Expected impact.
+- Whether the change is reversible.
+
+Then wait for my approval before executing it.
+
+After each major phase, provide a concise progress report and continue with the next authorized phase.
+
+## Final objective
+
+Complete as much of the legitimate ERPNext configuration and P04 validation work as possible through Antigravity's remote-control/browser and scratchpad capabilities.
+
+The end result must be a correctly configured, evidence-backed P04 workflow using verified business data, with all changes traceable and all untested capabilities clearly identified.
+
+**Accuracy, real business data, auditability and safety take precedence over making every checklist appear complete.**
