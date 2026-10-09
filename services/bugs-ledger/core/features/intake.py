@@ -16,9 +16,6 @@ from core.identity.generator import generate_feature_id, FEATURE_MODULE_CODES
 from core.features.models import (
     FeatureRecord,
     FeatureClassification,
-    FeatureStatus,
-    AzureSyncStatus,
-    _now_iso,
 )
 from core.features.storage import FeatureStorageManager, slugify
 
@@ -32,6 +29,7 @@ class IntakeResult(NamedTuple):
     ready_for_azure: bool
     blocker: Optional[str] = None
     advisory: Optional[str] = None
+    readiness_report: Optional[str] = None
 
 
 def compute_similarity(str1: str, str2: str) -> float:
@@ -185,33 +183,79 @@ class FeatureIntakeHarness:
         target_id = None
 
         if existing_id:
-            existing_record = self.storage.load_feature(str(existing_id).strip())
-            if existing_record:
-                is_existing = True
-                target_id = existing_record.feature_id
-            else:
-                target_id = str(existing_id).strip()
+            clean_existing_id = str(existing_id).strip()
+            existing_record = self.storage.load_feature(clean_existing_id)
+            if not existing_record:
+                return IntakeResult(
+                    success=False,
+                    feature_id=clean_existing_id,
+                    is_existing=False,
+                    record=None,
+                    storage_path=None,
+                    ready_for_azure=False,
+                    blocker=(
+                        f"Unknown feature ID '{clean_existing_id}' supplied for update. "
+                        "Canonical records can only be updated if they already exist, and new identities must be issued by the allocator."
+                    )
+                )
+            is_existing = True
+            target_id = existing_record.feature_id
         else:
             # Check duplicate
-            dup = self.check_duplicate(title, problem, canonical_module)
-            if dup:
-                dup_id, score, dup_title = dup
-                # If explicit update not specified, treat as duplicate collision blocker or update
-                if raw_input.get("allow_update"):
-                    is_existing = True
-                    target_id = dup_id
-                else:
-                    return IntakeResult(
-                        success=False,
-                        feature_id=dup_id,
-                        is_existing=True,
-                        record=None,
-                        storage_path=None,
-                        ready_for_azure=False,
-                        blocker=f"Potential duplicate feature detected: '{dup_id}' ({dup_title}) with similarity {score:.0%}. Specify 'allow_update': True or provide feature_id to update."
-                    )
+            assert canonical_module is not None
+            force_new = bool(raw_input.get("force_new"))
+            if not force_new:
+                dup = self.check_duplicate(title, problem, canonical_module)
+                if dup:
+                    dup_id, score, dup_title = dup
+                    if raw_input.get("allow_update"):
+                        # If moderate similarity (score < 0.85), require explicit confirmation
+                        if score < 0.85 and not raw_input.get("confirmed_duplicate"):
+                            return IntakeResult(
+                                success=False,
+                                feature_id=dup_id,
+                                is_existing=True,
+                                record=None,
+                                storage_path=None,
+                                ready_for_azure=False,
+                                blocker=(
+                                    f"Possible duplicate feature detected: '{dup_id}' ({dup_title}) with moderate similarity {score:.0%}. "
+                                    "Manual review required to prevent accidental overwrite. "
+                                    f"Specify 'confirmed_duplicate': True or pass 'feature_id': '{dup_id}' to update this record, "
+                                    "or 'force_new': True to allocate a new distinct feature ID."
+                                )
+                            )
+                        # Check module consistency on target record
+                        target_rec = self.storage.load_feature(dup_id)
+                        if target_rec and target_rec.module.lower() != canonical_module.lower():
+                            return IntakeResult(
+                                success=False,
+                                feature_id=dup_id,
+                                is_existing=True,
+                                record=None,
+                                storage_path=None,
+                                ready_for_azure=False,
+                                blocker=f"Cannot overwrite feature '{dup_id}' of module '{target_rec.module}' with request for module '{canonical_module}'."
+                            )
+                        is_existing = True
+                        target_id = dup_id
+                    else:
+                        return IntakeResult(
+                            success=False,
+                            feature_id=dup_id,
+                            is_existing=True,
+                            record=None,
+                            storage_path=None,
+                            ready_for_azure=False,
+                            blocker=(
+                                f"Potential duplicate feature detected: '{dup_id}' ({dup_title}) with similarity {score:.0%}. "
+                                "Specify 'allow_update': True (with confirmed_duplicate: True if moderate similarity) or provide feature_id to update, "
+                                "or 'force_new': True to allocate a new distinct feature ID."
+                            )
+                        )
 
         if not target_id:
+            assert canonical_module is not None
             target_id = self.allocate_next_id(canonical_module, is_test=is_test)
 
         slug = slugify(title)
@@ -234,6 +278,7 @@ class FeatureIntakeHarness:
                 if related_bugs:
                     record.related_bugs = list(set(record.related_bugs + related_bugs))
             else:
+                assert canonical_module is not None
                 record = FeatureRecord(
                     feature_id=target_id,
                     title=title,
@@ -250,6 +295,7 @@ class FeatureIntakeHarness:
                     slug=slug,
                 )
         else:
+            assert canonical_module is not None
             record = FeatureRecord(
                 feature_id=target_id,
                 title=title,
@@ -270,11 +316,22 @@ class FeatureIntakeHarness:
         storage_path = self.storage.save_feature(record, source_evidence_files=evidence_files)
 
         # Check Azure readiness
-        ready_for_azure = bool(
-            record.title
-            and record.module
-            and (record.problem_opportunity or record.proposed_behavior)
-        )
+        missing_fields = []
+        if not (record.title and record.title.strip()):
+            missing_fields.append("title")
+        if not (record.module and record.module.strip()):
+            missing_fields.append("module")
+        if not (record.problem_opportunity and record.problem_opportunity.strip()):
+            missing_fields.append("problem_opportunity")
+        if not (record.proposed_behavior and record.proposed_behavior.strip()):
+            missing_fields.append("proposed_behavior")
+        if not record.acceptance_criteria or not any(str(c).strip() for c in record.acceptance_criteria):
+            missing_fields.append("acceptance_criteria")
+
+        ready_for_azure = (len(missing_fields) == 0)
+        readiness_report = None
+        if not ready_for_azure:
+            readiness_report = f"Incomplete feature record for Azure synchronization. Missing required fields: {', '.join(missing_fields)}."
 
         # Defect warning advisory
         advisory = None
@@ -289,5 +346,6 @@ class FeatureIntakeHarness:
             record=record,
             storage_path=storage_path,
             ready_for_azure=ready_for_azure,
-            advisory=advisory
+            advisory=advisory,
+            readiness_report=readiness_report
         )
