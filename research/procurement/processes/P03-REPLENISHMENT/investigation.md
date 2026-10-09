@@ -1,60 +1,115 @@
-# Investigation: Inventory Replenishment & Reorder Exceptions (P03-REPLENISHMENT)
+# P03 — Investigation Report: Inventory Replenishment & Reorder Exceptions
 
-> **Process ID:** `P03-REPLENISHMENT`  
-> **Process Name:** Inventory Replenishment & Reorder Exceptions  
-> **Process Owner:** Bhushan (Process Owner)  
-> **Governing Standard:** [`../../RESEARCH_STANDARD.md`](../../RESEARCH_STANDARD.md)  
-> **Master Prompt:** [`../../MASTER_PROMPT.md`](../../MASTER_PROMPT.md)  
-> **Current Epistemic Level:** Baseline Initialized (`E0` hypotheses, unverified)
+**Process ID:** P03-REPLENISHMENT  
+**Owner:** Bhushan  
+**Research mode:** Public-source investigation plus ART workflow design and validation plan  
+**Research date:** 2026-10-09  
+**Standard:** ART Procurement Research Standard v1.0 ([`../../RESEARCH_STANDARD.md`](../../RESEARCH_STANDARD.md))  
+**Enterprise/system under investigation:** UNKNOWN  
+**Highest evidence level currently supported:** E1 (public process verification)  
+**E2 status:** Not established for a specific quantified pain point in this report  
+**E3 status:** Not achieved; no practitioner testimony supplied  
+**E4 status:** Not achieved; no enterprise SOP, transaction log, or live walkthrough supplied  
+**ART validation status:** UNTESTED
 
----
+> **Epistemic boundary:** This report uses public product documentation to establish documented capabilities. It does not claim that any named product is deployed by the target organization, that any exception occurs at a particular frequency, or that ART has passed a test. Enterprise-specific details remain `UNKNOWN`.
 
-## 1. Process Scope & Operational Boundary
+## 1. Scope and boundary
 
-### In-Scope:
-- Continuous monitoring of stock on-hand, open orders, and allocated demand across distribution centers and manufacturing plants.
-- Evaluation of inventory against dynamic Reorder Points (ROP) and safety stock thresholds.
-- Exception detection: demand surges, lead-time variance from suppliers, stockout risks, and minimum order quantity (MOQ) conflicts.
-- Replenishment purchase requisition (PR) generation and supplier allocation optimization.
-- Mitigation of the bullwhip effect through demand signal smoothing and historical seasonality review.
+### In scope
+- Reorder-point and min-max planning concepts.
+- Safety-stock threshold monitoring.
+- Review of planning inputs, including available stock, firm receipts, demand, lead time, MOQ and lot multiples where supported by the incumbent system.
+- Read-only replenishment exception investigation and evidence-backed reporting.
+- A validation plan for a proposed ART read-only workflow.
 
-### Out-of-Scope (Handoffs):
-- Master supplier contract negotiation and terms of trade (managed in [`../P01-RFP/`](../P01-RFP/)).
-- Tracking PO shipment in-transit and carrier expediting (managed in [`../P02-SUPPLIER-DELIVERY/`](../P02-SUPPLIER-DELIVERY/)).
-- Supplier billing, 3-way matching, and payment release (managed in [`../P04-INVOICE-EXCEPTIONS/`](../P04-INVOICE-EXCEPTIONS/)).
+### Out of scope
+- Supplier acknowledgment, shipment tracking and delivery-delay escalation (P02).
+- RFP/tender review and response coordination (P01).
+- Invoice/receipt discrepancy resolution (P04).
+- Purchase-order creation, release, supplier commitment, or any other consequential write action.
+- Changes to `contracts/` or application schemas.
 
----
+## 2. Executive summary
 
-## 2. Core Investigation Questions
+**Fact — E1:** SAP S/4HANA documentation describes reorder-point planning and explains that the reorder point should cover expected material requirements during replenishment lead time. Oracle Fusion Cloud SCM documentation describes min-max planning that can suggest a purchase requisition or movement request when the planning inventory level falls below a configured minimum. Sources: [SAP Reorder Point Planning](https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/af9ef57f504840d2b81be8667206d485/5697b6535fe6b74ce10000000a174cb4.html) and [Oracle Min-Max Planning](https://docs.oracle.com/en/cloud/saas/supply-chain-and-manufacturing/26c/famml/min-max-planning.html).
 
-1. **MRP Exception Fatigue:** Why do inventory planners routinely experience "MRP alert fatigue" with thousands of daily system-generated reschedule/cancel messages, leading to ignored alerts?
-2. **Dynamic Lead-Time Deficits:** How do standard enterprise inventory engines (SAP IBP, Oracle NetSuite, Blue Yonder) adapt when actual supplier delivery lead time diverges significantly from static system master data?
-3. **Emergency Expediting Costs:** What is the annual organizational cost incurred by reactive stockout mitigation (spot buys, split orders, express freight) compared to proactive replenishment adjustments?
-4. **Safety Stock Distortion:** How do planners handle contradictory demand signals during seasonal or market disruptions without artificially inflating safety stock?
+**Inference:** Because incumbent planning products already implement standard replenishment calculations, an ART prototype should not be justified as a replacement calculation engine without evidence of a specific gap. A narrower read-only investigator could assemble source records, identify configured threshold breaches, flag inconsistent or stale inputs, and explain why a case needs human review.
 
----
+**Unknown:** Target enterprise, ERP, item master configuration, actual exception frequency, planner workload, current manual steps, API availability, and business authorization model.
 
-## 3. Incumbent Software Landscape & Automation Deficits
+**Conclusion:** Proceed only with a read-only proof of concept using synthetic or approved non-production data. No autonomous write action is proposed.
 
-| Software Category | Typical Vendors | Current Automation Capabilities | Critical Failure Points & Manual Deficits |
-|---|---|---|---|
-| **Advanced Planning & Scheduling (APS)** | SAP Integrated Business Planning (IBP), Blue Yonder, Kinaxis RapidResponse | Multi-echelon inventory optimization (MEIO), statistical demand forecasting, rough-cut capacity planning. | Highly complex mathematical models require pristine clean master data; planners frequently override recommendations via offline Excel sheets due to unmodeled real-world disruptions. |
-| **Core ERP Material Requirements Planning (MRP)** | SAP S/4HANA (MRP Live), Oracle Cloud SCM | Batch replenishment proposals based on static Min-Max and fixed lead times. | Assumes deterministic lead times; cannot anticipate supplier delivery bottlenecks or dynamic logistics disruptions. |
-| **Warehouse & Inventory Management** | Manhattan Associates, Körber, Blue Yonder WMS | Real-time bin tracking, cycle count verification, pick/pack automation. | Tracks physical inventory inside the four walls, but detached from supplier upstream production and transport delays. |
+## 3. As-is reference workflow (public baseline, not a verified company SOP)
 
----
+1. **WF-P03-001 — Collect planning inputs:** obtain inventory position, firm receipts/open supply, applicable demand, planning parameters and source timestamps.
+2. **WF-P03-002 — Evaluate trigger:** compare the relevant inventory measure against the configured reorder point or min-max minimum.
+3. **WF-P03-003 — Determine suggested quantity:** apply the incumbent system's configured replenishment and order-modifier rules.
+4. **WF-P03-004 — Inspect exceptions:** flag missing, stale, contradictory or out-of-scope inputs for human review.
+5. **WF-P03-005 — Present evidence:** provide source identifiers, timestamps, rule applied, calculation basis and unresolved questions.
+6. **WF-P03-006 — Hand off:** route the report to an authorized planner; ART does not create, submit, approve or release a request.
 
-## 4. Operational Failure Modes & High-Consequence Risks
+These are reference workflow steps derived from public product documentation and a proposed read-only design. They are not evidence of the target enterprise's actual operating procedure.
 
-- **Critical Stockouts:** Running out of essential raw materials or high-velocity SKUs halts manufacturing lines or results in unfulfilled customer orders and contractual penalties.
-- **Excess Working Capital & Scrap:** Panicked over-ordering in response to perceived shortages leads to warehouse congestion, cash flow drain, and inventory obsolescence/write-downs.
-- **Supplier Allocation Lockout:** Delayed reorders during high-demand periods push the enterprise to the back of the supplier's allocation queue.
+## 4. Incumbent software audit
 
----
+### SAP S/4HANA
+**Fact — E1:** SAP documents reorder-point planning and identifies safety stock, average consumption and replenishment lead time as important values. It also describes manual and automatic determination of reorder and safety-stock levels.
+Source: [SAP Help Portal — Reorder Point Planning](https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/af9ef57f504840d2b81be8667206d485/5697b6535fe6b74ce10000000a174cb4.html).
 
-## 5. Investigation Next Steps & Artifact References
+**Limitation of current evidence:** This establishes documented capability, not the target organization's configuration or actual performance.
 
-- Evidence Log: [`evidence.md`](./evidence.md)
-- Operational Workflow Map: [`workflow.md`](./workflow.md)
-- ART Agent Validation: [`art-validation.md`](./art-validation.md)
-- Central Ambiguity Log: [`../../AMBIGUITIES.md`](../../AMBIGUITIES.md)
+### Oracle Fusion Cloud SCM
+**Fact — E1:** Oracle documents min-max planning using minimum and maximum quantities and supports attributes including minimum order quantity and fixed lot multiple. It may suggest purchase requisitions or movement requests depending on configuration.
+Source: [Oracle — Min-Max Planning](https://docs.oracle.com/en/cloud/saas/supply-chain-and-manufacturing/26c/famml/min-max-planning.html).
+
+Oracle also documents calculation logic for available quantity and order quantity modifiers:
+[Oracle — How Min-Max Planning Replenishment Quantities Are Calculated](https://docs.oracle.com/en/cloud/saas/supply-chain-and-manufacturing/25c/famml/how-min-max-planning-replenishment-quantities-are-calculated.html).
+
+### Other products
+Coupa, JAGGAER, ServiceNow and Tipalti are not assessed as installed systems for the target organization. Their precise role, modules and deployment status are **UNKNOWN**. Do not infer that they replace an ERP planning engine.
+
+## 5. Exception hypotheses (unvalidated; E0)
+
+| Claim ID | Hypothesis | What would validate it |
+|---|---|---|
+| CLM-P03-001 | Planners may need to investigate stale or contradictory stock/supply inputs. | E3 interview plus E4 examples from authorized transaction records. |
+| CLM-P03-002 | MOQ or lot-multiple rules may make a suggested quantity require review. | Approved item parameters and a traced replenishment case. |
+| CLM-P03-003 | A read-only agent may reduce time spent assembling evidence for exceptions. | Baseline time study and controlled comparison; no savings claim before measurement. |
+| CLM-P03-004 | Repeated runs or retries could create duplicate work if downstream controls are weak. | Architecture review and controlled idempotency/failure tests. |
+
+No exception frequency, delay cost, financial impact or expected productivity improvement is claimed.
+
+## 6. High-consequence failure modes to test
+
+- **Financial:** incorrect quantity, inappropriate rounding, excess inventory, duplicate request.
+- **Operational:** stockout risk misclassified because of stale or missing supply data.
+- **Authorization:** read-only agent obtains or uses write permissions unexpectedly.
+- **Auditability:** recommendation cannot be reconstructed from retained inputs and rule version.
+
+Likelihood, severity and current controls are **UNKNOWN** pending enterprise evidence.
+
+## 7. ART candidate assessment
+
+**Candidate:** Read-only replenishment exception investigator.
+
+**Allowed:** read approved data; compare values against approved rules; calculate a transparent diagnostic; identify missing/stale/conflicting fields; produce a report with evidence IDs; recommend human review.
+
+**Forbidden in this scope:** create/update/delete inventory records; create or submit requisitions; approve/release orders; contact suppliers; alter planning parameters; infer missing values as facts.
+
+**Stop conditions:** missing required inputs; incompatible units; ambiguous item/location identity; stale data beyond an approved threshold; conflicting authoritative records; unknown policy; permission error; failed source retrieval; non-deterministic or irreproducible calculation.
+
+**Current validation status:** UNTESTED. See [`art-validation.md`](./art-validation.md).
+
+## 8. Open ambiguities
+
+See [`evidence.md`](./evidence.md) for source records and [`art-validation.md`](./art-validation.md) for tests. Initial open ambiguities:
+- AMB-P03-001: target ERP/system unknown (A2).
+- AMB-P03-002: authoritative data source and freshness unknown (A3).
+- AMB-P03-003: approved replenishment rules and parameter ownership unknown (A3).
+- AMB-P03-004: enterprise exception frequency and cost unknown (A2).
+- AMB-P03-005: ART permissions, API contracts and read-only enforcement unknown (A4 if consequential access is possible).
+
+## 9. Exit criteria
+
+Do not claim enterprise validation until authorized primary evidence has been reviewed. Do not claim ART feasibility until the validation cases pass in an approved test environment. Preserve the process boundary and do not modify application contracts.
