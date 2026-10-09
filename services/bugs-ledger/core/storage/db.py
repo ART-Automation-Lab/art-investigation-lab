@@ -106,6 +106,43 @@ class AtomicIdAllocator:
         return f"{effective_prefix}-{module_norm}-{seq:03d}"
 
     @staticmethod
+    def allocate_feature_id(
+        conn: sqlite3.Connection,
+        module: str,
+        prefix: str = "ART-FEAT",
+        is_test: bool = False
+    ) -> str:
+        """
+        Atomically allocates the next sequential Canonical ART Feature ID for an approved module.
+        Format: ART-FEAT-<MODULE>-001 or TEST-ART-FEAT-<MODULE>-001
+        """
+        if not module or not isinstance(module, str):
+            raise ValueError("Module must be a non-empty string.")
+        
+        from core.identity.generator import FEATURE_MODULE_CODES
+        raw_mod = module.strip().upper()
+        module_norm = FEATURE_MODULE_CODES.get(raw_mod, raw_mod)
+        if module_norm == "NOT PROVIDED":
+            raise ValueError("Cannot allocate feature ID for 'Not provided' module.")
+        
+        effective_prefix = "TEST-ART-FEAT" if is_test else (prefix or "ART-FEAT").strip().upper()
+        scope = f"FEAT:{effective_prefix}:{module_norm}" if effective_prefix != "ART-FEAT" else f"FEAT:{module_norm}"
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO id_allocations (scope, last_seq) VALUES (?, 1)
+            ON CONFLICT(scope) DO UPDATE SET last_seq = id_allocations.last_seq + 1
+            RETURNING last_seq;
+            """,
+            (scope,)
+        )
+        row = cursor.fetchone()
+        seq = row[0]
+        if seq > 999:
+            raise OverflowError(f"Sequence overflow for feature module '{module_norm}'. Exceeded 999.")
+        return f"{effective_prefix}-{module_norm}-{seq:03d}"
+
+    @staticmethod
     def ensure_minimum_sequence(conn: sqlite3.Connection, scope: str, min_seq: int) -> int:
         """
         Safely seeds or advances an allocation scope to at least min_seq.
