@@ -26,6 +26,8 @@ Before testing:
 
 Any unresolved authorization risk is **A4** and blocks execution.
 
+See [`./governance.md`](./governance.md) for the Agent Lab Action Registry, Fact Library, Policy Rules, and Human Review configurations enforcing these safety gates.
+
 ## 3. Test cases
 
 | Test ID | Scenario | Expected result | Status |
