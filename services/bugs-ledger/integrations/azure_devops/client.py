@@ -718,7 +718,7 @@ class AzureDevOpsClient:
             ac_items.append(f"<li>{html.escape(str(criteria))}</li>")
         ac_html = f"<ol>{''.join(ac_items)}</ol>" if ac_items else "<div>Pending formal acceptance criteria.</div>"
 
-        tags = [f"ART:{canonical_feature_id}", canonical_feature_id, "ART", "Feature", str(classification)]
+        tags = [f"ART-ID:{canonical_feature_id}", f"ART:{canonical_feature_id}", canonical_feature_id, "ART", "Feature", str(classification)]
         if module and module != "Not provided":
             tags.append(str(module).lower())
         tags_str = "; ".join(dict.fromkeys(tags))

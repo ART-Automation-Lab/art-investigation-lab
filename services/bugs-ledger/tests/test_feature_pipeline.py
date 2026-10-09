@@ -52,6 +52,32 @@ class TestFeaturePipelineSuite(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
+    def _make_readback(
+        self,
+        work_item_id: int,
+        feature_id: str,
+        parent_id: int,
+        wi_type: str = "User Story",
+        project: str = "ART IPR-0063",
+        has_parent: bool = True
+    ):
+        relations = []
+        if has_parent:
+            relations.append({
+                "rel": "System.LinkTypes.Hierarchy-Reverse",
+                "url": f"https://dev.azure.com/BixBytesSolutions/ART%20IPR-0063/_apis/wit/workItems/{parent_id}"
+            })
+        return {
+            "id": work_item_id,
+            "fields": {
+                "System.WorkItemType": wi_type,
+                "System.Title": f"[{feature_id}] Mock Feature Title",
+                "System.Tags": f"ART-ID:{feature_id}; ART:{feature_id}; Feature",
+                "System.TeamProject": project
+            },
+            "relations": relations
+        }
+
     # 1. New feature creation in local-only mode
     def test_01_new_feature_creation_local_only(self):
         pipeline = FeaturePipeline(
@@ -192,13 +218,16 @@ class TestFeaturePipelineSuite(unittest.TestCase):
     # 7. Correct User Story work-item type
     def test_07_correct_user_story_work_item_type(self):
         mock_client = MagicMock()
+        mock_client.config = self.mock_config
         mock_client.create_user_story.return_value = MagicMock(
             work_item_id=70001,
             work_item_url="https://dev.azure.com/BixBytesSolutions/ART%20IPR-0063/_workitems/edit/70001",
             canonical_bug_id="TEST-ART-FEAT-AGENT-001",
             is_existing=False
         )
-        mock_client.get_work_item.return_value = {"id": 70001, "fields": {"System.WorkItemType": "User Story"}}
+        mock_client.get_work_item.return_value = self._make_readback(
+            70001, "TEST-ART-FEAT-AGENT-001", 69102
+        )
 
         sync_harness = AzureFeatureSyncHarness(
             config=self.mock_config,
@@ -211,7 +240,8 @@ class TestFeaturePipelineSuite(unittest.TestCase):
             title="Export Agents to YAML",
             module="Agent Lab",
             problem_opportunity="Lack of export feature.",
-            proposed_behavior="Export button generating YAML."
+            proposed_behavior="Export button generating YAML.",
+            acceptance_criteria=["Export button in toolbar", "YAML format conforms to spec"]
         )
         self.storage.save_feature(record)
 
@@ -250,13 +280,16 @@ class TestFeaturePipelineSuite(unittest.TestCase):
     # 9. Existing Azure ticket reconciliation
     def test_09_existing_azure_ticket_reconciliation(self):
         mock_client = MagicMock()
+        mock_client.config = self.mock_config
         mock_client.create_user_story.return_value = MagicMock(
             work_item_id=69500,
             work_item_url="https://dev.azure.com/edit/69500",
             canonical_bug_id="TEST-ART-FEAT-GOV-001",
             is_existing=True  # Reconciled existing ticket
         )
-        mock_client.get_work_item.return_value = {"id": 69500}
+        mock_client.get_work_item.return_value = self._make_readback(
+            69500, "TEST-ART-FEAT-GOV-001", 69109
+        )
 
         sync_harness = AzureFeatureSyncHarness(
             config=self.mock_config,
@@ -269,7 +302,8 @@ class TestFeaturePipelineSuite(unittest.TestCase):
             title="Custom Compliance Report Template",
             module="Governance",
             problem_opportunity="Reports use standard format only.",
-            proposed_behavior="Allow custom header and metrics."
+            proposed_behavior="Allow custom header and metrics.",
+            acceptance_criteria=["Custom header configuration saved"]
         )
         self.storage.save_feature(record)
 
@@ -281,6 +315,7 @@ class TestFeaturePipelineSuite(unittest.TestCase):
     # 10. Safe retry following Azure failure
     def test_10_safe_retry_following_azure_failure(self):
         mock_client = MagicMock()
+        mock_client.config = self.mock_config
         mock_client.create_user_story.side_effect = AzureDevOpsError(
             code="EXTERNAL_SERVICE_ERROR",
             message="Simulated Azure 502 Bad Gateway",
@@ -298,7 +333,8 @@ class TestFeaturePipelineSuite(unittest.TestCase):
             title="Parallel Branching in Orchestrator",
             module="Orchestrator",
             problem_opportunity="Sequential only.",
-            proposed_behavior="Fork-join nodes."
+            proposed_behavior="Fork-join nodes.",
+            acceptance_criteria=["Parallel execution graph supported"]
         )
         self.storage.save_feature(record)
 
@@ -319,7 +355,9 @@ class TestFeaturePipelineSuite(unittest.TestCase):
             canonical_bug_id="TEST-ART-FEAT-ORC-001",
             is_existing=False
         )
-        mock_client.get_work_item.return_value = {"id": 70100}
+        mock_client.get_work_item.return_value = self._make_readback(
+            70100, "TEST-ART-FEAT-ORC-001", 69103
+        )
 
         retry_res = sync_harness.sync_feature(record.feature_id)
         self.assertTrue(retry_res.success)
@@ -422,6 +460,248 @@ class TestFeaturePipelineSuite(unittest.TestCase):
         self.assertEqual(len(relations), 1)
         self.assertEqual(relations[0]["value"]["rel"], "System.LinkTypes.Hierarchy-Reverse")
         self.assertIn("/workItems/69102", relations[0]["value"]["url"])
+
+    # 15. Readback verification fails when work item type is not User Story
+    def test_15_readback_wrong_azure_work_item_type(self):
+        mock_client = MagicMock()
+        mock_client.config = self.mock_config
+        mock_client.create_user_story.return_value = MagicMock(
+            work_item_id=70002,
+            work_item_url="https://dev.azure.com/edit/70002",
+            canonical_bug_id="TEST-ART-FEAT-AGENT-002",
+            is_existing=False
+        )
+        # Mock returns Bug instead of User Story
+        mock_client.get_work_item.return_value = self._make_readback(
+            70002, "TEST-ART-FEAT-AGENT-002", 69102, wi_type="Bug"
+        )
+
+        sync_harness = AzureFeatureSyncHarness(
+            config=self.mock_config,
+            client=mock_client,
+            storage_manager=self.storage
+        )
+
+        record = FeatureRecord(
+            feature_id="TEST-ART-FEAT-AGENT-002",
+            title="Prompt Cache Invalidation",
+            module="Agent Lab",
+            problem_opportunity="Stale prompt cache.",
+            proposed_behavior="Manual invalidation toggle.",
+            acceptance_criteria=["Toggle in settings"]
+        )
+        self.storage.save_feature(record)
+
+        res = sync_harness.sync_feature(record.feature_id)
+        self.assertFalse(res.success)
+        self.assertIn("Work item type mismatch during readback: expected 'User Story', got 'Bug'", res.blocker)
+        reloaded = self.storage.load_feature(record.feature_id)
+        self.assertEqual(reloaded.azure_sync_status, AzureSyncStatus.FAILED.value)
+
+    # 16. Readback verification fails when parent feature link is wrong or missing
+    def test_16_readback_wrong_azure_parent(self):
+        mock_client = MagicMock()
+        mock_client.config = self.mock_config
+        mock_client.create_user_story.return_value = MagicMock(
+            work_item_id=70003,
+            work_item_url="https://dev.azure.com/edit/70003",
+            canonical_bug_id="TEST-ART-FEAT-AGENT-003",
+            is_existing=False
+        )
+        # Mock returns parent linked to Bug Bounty Epic Feature #68783 instead of Backlog #69102
+        mock_client.get_work_item.return_value = self._make_readback(
+            70003, "TEST-ART-FEAT-AGENT-003", 68783
+        )
+
+        sync_harness = AzureFeatureSyncHarness(
+            config=self.mock_config,
+            client=mock_client,
+            storage_manager=self.storage
+        )
+
+        record = FeatureRecord(
+            feature_id="TEST-ART-FEAT-AGENT-003",
+            title="Custom Model Temperature",
+            module="Agent Lab",
+            problem_opportunity="Fixed temperature.",
+            proposed_behavior="Slider for temperature.",
+            acceptance_criteria=["Slider range 0.0 to 2.0"]
+        )
+        self.storage.save_feature(record)
+
+        res = sync_harness.sync_feature(record.feature_id)
+        self.assertFalse(res.success)
+        self.assertIn("Parent hierarchy link mismatch during readback", res.blocker)
+        reloaded = self.storage.load_feature(record.feature_id)
+        self.assertEqual(reloaded.azure_sync_status, AzureSyncStatus.FAILED.value)
+
+    # 17. Unknown explicit feature ID fails closed and does not allocate
+    def test_17_unknown_explicit_feature_id_fails_closed(self):
+        raw_input = {
+            "feature_id": "ART-FEAT-UNKNOWN-999",
+            "title": "Unauthorized Feature Record",
+            "module": "Agent Lab",
+            "problem_opportunity": "Testing identity protection.",
+            "proposed_behavior": "Should fail closed."
+        }
+        res = self.intake.process_intake(raw_input, is_test=True)
+        self.assertFalse(res.success)
+        self.assertIn("Unknown feature ID 'ART-FEAT-UNKNOWN-999' supplied for update", res.blocker)
+        self.assertIsNone(self.storage.load_feature("ART-FEAT-UNKNOWN-999"))
+
+    # 18. Missing acceptance criteria blocks Azure synchronization
+    def test_18_missing_acceptance_criteria_blocks_azure_sync(self):
+        mock_client = MagicMock()
+        sync_harness = AzureFeatureSyncHarness(
+            config=self.mock_config,
+            client=mock_client,
+            storage_manager=self.storage
+        )
+
+        # Record without acceptance criteria
+        record = FeatureRecord(
+            feature_id="TEST-ART-FEAT-TOOL-001",
+            title="Shell Tool Timeout Parameter",
+            module="Tool Builder",
+            problem_opportunity="Shell tool hangs indefinitely.",
+            proposed_behavior="Timeout flag.",
+            acceptance_criteria=[]  # Empty
+        )
+        self.storage.save_feature(record)
+
+        res = sync_harness.sync_feature(record.feature_id)
+        self.assertFalse(res.success)
+        self.assertIn("Missing required fields: acceptance_criteria", res.blocker)
+        mock_client.create_user_story.assert_not_called()
+
+    # 19. Dry-run never returns fabricated Azure IDs and never persists SYNCED
+    def test_19_dry_run_never_returns_fabricated_id(self):
+        mock_client = MagicMock()
+        sync_harness = AzureFeatureSyncHarness(
+            config=self.mock_config,
+            client=mock_client,
+            storage_manager=self.storage
+        )
+
+        record = FeatureRecord(
+            feature_id="TEST-ART-FEAT-MCP-001",
+            title="MCP Protocol SSE Transport",
+            module="MCP Servers",
+            problem_opportunity="Stdio transport only.",
+            proposed_behavior="Add SSE transport.",
+            acceptance_criteria=["SSE endpoint functional"]
+        )
+        self.storage.save_feature(record)
+
+        res = sync_harness.sync_feature(record.feature_id, dry_run=True)
+        self.assertTrue(res.success)
+        self.assertIsNone(res.work_item_id)  # MUST BE None, never 99999
+        self.assertEqual(res.sync_status, "DRY_RUN_PASSED")
+
+        # Verify disk state remained NOT_SYNCED
+        reloaded = self.storage.load_feature(record.feature_id)
+        self.assertEqual(reloaded.azure_sync_status, AzureSyncStatus.NOT_SYNCED.value)
+        self.assertIsNone(reloaded.azure_work_item_id)
+        mock_client.create_user_story.assert_not_called()
+
+    # 20. Same-feature retry reconciles existing Azure work item after ambiguous failure
+    def test_20_same_feature_retry_reconciles_existing_after_ambiguous_failure(self):
+        client = AzureDevOpsClient(self.mock_config)
+
+        # Setup feature record
+        record = FeatureRecord(
+            feature_id="TEST-ART-FEAT-AGENT-005",
+            title="Agent Streaming Telemetry",
+            module="Agent Lab",
+            problem_opportunity="No streaming tokens.",
+            proposed_behavior="Stream SSE chunks.",
+            acceptance_criteria=["SSE chunks delivered in real time"]
+        )
+        self.storage.save_feature(record)
+
+        # Mocking scenario: First attempt created ticket #70555 in Azure, but readback failed
+        reconciled_item = MagicMock(
+            work_item_id=70555,
+            work_item_url="https://dev.azure.com/edit/70555",
+            canonical_bug_id=record.feature_id,
+            is_existing=True
+        )
+
+        mock_client = MagicMock()
+        mock_client.config = self.mock_config
+        # Attempt 1 fails during readback
+        mock_client.create_user_story.return_value = MagicMock(
+            work_item_id=70555,
+            work_item_url="https://dev.azure.com/edit/70555",
+            canonical_bug_id=record.feature_id,
+            is_existing=False
+        )
+        mock_client.get_work_item.side_effect = AzureDevOpsError(
+            code="NETWORK_ERROR",
+            message="Readback connection reset",
+            status_code=502
+        )
+
+        sync_harness = AzureFeatureSyncHarness(
+            config=self.mock_config,
+            client=mock_client,
+            storage_manager=self.storage
+        )
+
+        # Run attempt 1
+        res1 = sync_harness.sync_feature(record.feature_id)
+        self.assertFalse(res1.success)
+        reloaded1 = self.storage.load_feature(record.feature_id)
+        self.assertEqual(reloaded1.azure_sync_status, AzureSyncStatus.FAILED.value)
+        self.assertIsNone(reloaded1.azure_work_item_id)
+
+        # Attempt 2 (Retry): Azure now reconciles ticket #70555 instead of re-creating
+        mock_client.create_user_story.return_value = reconciled_item
+        mock_client.get_work_item.side_effect = None
+        mock_client.get_work_item.return_value = self._make_readback(
+            70555, record.feature_id, 69102
+        )
+
+        res2 = sync_harness.sync_feature(record.feature_id)
+        self.assertTrue(res2.success)
+        self.assertEqual(res2.work_item_id, 70555)
+        self.assertTrue(res2.is_existing)
+
+        reloaded2 = self.storage.load_feature(record.feature_id)
+        self.assertEqual(reloaded2.azure_sync_status, AzureSyncStatus.SYNCED.value)
+        self.assertEqual(reloaded2.azure_work_item_id, 70555)
+
+    # 21. Moderate duplicate requires manual review or force_new
+    def test_21_moderate_duplicate_requires_manual_review_or_force_new(self):
+        raw_base = {
+            "title": "Agent Token Metering and Quotas",
+            "module": "Agent Lab",
+            "problem_opportunity": "No token limit enforcement.",
+            "proposed_behavior": "Enforce per-user token quota.",
+            "acceptance_criteria": ["Quota exceeded alert"]
+        }
+        base_res = self.intake.process_intake(raw_base, is_test=True)
+        self.assertTrue(base_res.success)
+        base_id = base_res.feature_id
+
+        # Similar request (~80% similarity: between 0.65 and 0.85)
+        raw_similar = {
+            "title": "Agent Token Metering and Rate Limits",
+            "module": "Agent Lab",
+            "problem_opportunity": "No token usage rate enforcement.",
+            "proposed_behavior": "Enforce per-user token quota.",
+            "allow_update": True  # Wants to update, but without confirmed_duplicate
+        }
+        res_review = self.intake.process_intake(raw_similar, is_test=True)
+        self.assertFalse(res_review.success)
+        self.assertIn("Manual review required", res_review.blocker)
+
+        # Force new distinct feature despite similarity
+        raw_similar["force_new"] = True
+        raw_similar["allow_update"] = False
+        res_forced = self.intake.process_intake(raw_similar, is_test=True)
+        self.assertTrue(res_forced.success)
+        self.assertNotEqual(res_forced.feature_id, base_id)
 
 
 if __name__ == "__main__":

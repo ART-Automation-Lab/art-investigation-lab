@@ -85,9 +85,10 @@ def cmd_sync(args):
         print("=" * 60)
         print("AZURE FEATURE SYNC: SUCCESS")
         print(f"FEATURE ID: {result.feature_id}")
-        print(f"WORK ITEM ID: #{result.work_item_id}")
+        wi_str = f"#{result.work_item_id}" if result.work_item_id else "None (Dry Run / Unsynced)"
+        print(f"WORK ITEM ID: {wi_str}")
         print(f"PARENT FEATURE ID: #{result.parent_feature_id}")
-        print(f"WORK ITEM URL: {result.work_item_url}")
+        print(f"WORK ITEM URL: {result.work_item_url or 'None'}")
         print(f"SYNC STATUS: {result.sync_status}")
         print(f"TICKET STATUS: {'EXISTING' if result.is_existing else 'CREATED'}")
         print("=" * 60)
