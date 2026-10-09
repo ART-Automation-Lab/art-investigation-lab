@@ -46,7 +46,7 @@ The following controlled validation executions have been conducted and logged in
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `TEST-P01-001` | Synthetic Benchmark | Extraction Fidelity on 20 Seeded Clauses | **PASS** | [`VAL-P01-001.md`](./executions/VAL-P01-001.md) | 20/20 requirements extracted; 17 mandatory, 3 preferred; zero hallucinations; all compliance set to UNKNOWN. |
 | `TEST-P01-002` | Platform Runtime Test | Agent Lab "Configure Prompt" Editor UI | **FAIL** | [`VAL-P01-002.md`](./executions/VAL-P01-002.md) | Textarea recomposition glitch resets typing cursor to index 0 on periodic background re-render. Logged as defect. |
-| `BUG-P01-001` | Defect Investigation | Caret Jump on Periodic Re-render | **FILED / SYNCED** | [`BUG-P01-001.md`](./executions/BUG-P01-001.md) | Logged via ART Bug Pipeline as canonical [`ART-AGENT-010`](../../../../services/bugs-ledger/ART-Product-Validation/bugs/Agent Lab/ART-AGENT-010__configure-prompt-system-instructions-rerender-cursor-reset/ART-AGENT-010.md) / Azure Work Item `#69076`. |
+| `BUG-P01-001` | Defect Investigation | Caret Jump on Periodic Re-render | **FILED / SYNCED** | [`BUG-P01-001.md`](./executions/BUG-P01-001.md) | Logged via ART Bug Pipeline as canonical `ART-AGENT-010` / Azure Work Item `#69076` (detailed in [`BUG-P01-001.md`](./executions/BUG-P01-001.md)). |
 
 ---
 
