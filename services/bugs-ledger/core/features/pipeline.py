@@ -119,7 +119,7 @@ class FeaturePipeline:
                 work_item_url=None,
                 parent_feature_id=None,
                 azure_status="NOT_RUN",
-                blocker="Feature is not ready for Azure synchronization: missing mandatory specification fields.",
+                blocker=f"Feature is not ready for Azure synchronization: {intake_res.readiness_report or 'missing mandatory specification fields.'}",
                 advisory=intake_res.advisory
             )
 
