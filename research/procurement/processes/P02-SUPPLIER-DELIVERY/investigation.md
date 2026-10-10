@@ -5,7 +5,7 @@
 > **Process Owner:** Vrushali (Process Owner)  
 > **Governing Standard:** [`../../RESEARCH_STANDARD.md`](../../RESEARCH_STANDARD.md)  
 > **Master Prompt:** [`../../MASTER_PROMPT.md`](../../MASTER_PROMPT.md)  
-> **Current Epistemic Level:** Baseline Initialized (`E0` hypotheses, unverified)
+> **Current Epistemic Level:** Pilot Phase 1 Grounded (`E1` Technical Standards with Explicit `E0` Operational Hypotheses)
 
 ---
 
@@ -13,25 +13,58 @@
 
 ### In-Scope:
 - Post-award Purchase Order (PO) transmission and formal supplier acknowledgment tracking.
-- Verification of Estimated Delivery Dates (EDDs) against contractual purchase order lines.
+- Verification of Promised Delivery Dates (PDD) and Estimated Delivery Dates (EDD) against contractual purchase order line Requested Delivery Dates (RDD).
+- Split delivery and partial quantity commitment reconciliation against Material Requirements Planning (MRP) schedule lines.
 - Advance Shipping Notice (ASN) ingestion, carrier tracking milestone verification, and port/customs delay monitoring.
 - Automated anomaly detection for unacknowledged orders, date slippages, and partial quantity commitments.
-- Tiered supplier escalation workflows (reminder emails, phone calls, buyer escalation, vendor penalties).
-- Handoff of revised delivery dates to warehouse receiving and inventory planning teams.
+- Tiered supplier escalation workflows (reminder emails, phone follow-ups, buyer commercial escalation, vendor liquidated damages/penalties).
+- Handoff of verified delivery dates to warehouse receiving and inventory planning teams.
 
 ### Out-of-Scope (Handoffs):
 - Upstream sourcing contract and SLA penalty negotiation (managed in [`../P01-RFP/`](../P01-RFP/)).
 - Downstream safety stock rebalancing and reorder quantity adjustments (handoff to [`../P03-REPLENISHMENT/`](../P03-REPLENISHMENT/)).
-- Physical dock receiving, quality inspection, and invoice matching (handoff to [`../P04-INVOICE-EXCEPTIONS/`](../P04-INVOICE-EXCEPTIONS/)).
+- Physical dock receiving, quality inspection, and 3-way invoice matching (handoff to [`../P04-INVOICE-EXCEPTIONS/`](../P04-INVOICE-EXCEPTIONS/)).
 
 ---
 
-## 2. Core Investigation Questions
+## 2. Evidence-Backed Findings by Research Category
 
-1. **Acknowledgment Slippage:** What proportion of enterprise purchase orders remain unacknowledged beyond 48 hours, and what causes supplier non-responsiveness?
-2. **EDI vs. Unstructured Communication:** What percentage of supplier delivery updates arrive via structured EDI (e.g., EDI 855 PO Acknowledgment, EDI 856 ASN) versus unstructured emails and spreadsheets?
-3. **Lead-Time Visibility:** Why do standard ERP supplier portals (SAP Ariba, Coupa Supplier Portal) fail to maintain real-time delivery tracking for Tier-2 and Tier-3 suppliers?
-4. **Escalation Friction:** What human effort is expended by procurement expediters chasing delivery dates, and what operational triggers warrant penalty enforcement?
+### 2.1 Supplier Acknowledgment Practices
+- **Communication Channels (`CLM-P02-001` / `E0`):** While high-volume Tier-1 suppliers exchange structured EDI 855 transactions, mid-tier and spot suppliers predominantly respond via unstructured emails or PDF acknowledgment attachments. The degree of unstructured reliance is maintained as an operational hypothesis (`E0`) pending enterprise-level operational audits.
+- **Standards vs. Implementation Syntax (`CLM-P02-002` / `E1`):** In the ANSI ASC X12 855 standard ([`evidence.md#evd-p02-002`](./evidence.md)):
+  - Segment `ACK01` specifies line-item action: `IA` indicates acceptance as ordered; `BP` indicates partial acceptance with balance backordered; `AC` indicates item accepted and already shipped; `DR` indicates item accepted with date rescheduled.
+  - Segment `BAK02` specifies header acknowledgment type: `AD` (accepted without change) versus `AC` (accepted with changes).
+  - Crucially, an operational delivery delay is an analytical evaluation (`Promised Delivery Date > Requested Delivery Date`), not synonymous with code `AC` (which in standard X12 denotes "Item Accepted and Shipped").
+
+### 2.2 Purchase Order & Delivery Date Field Architecture
+Standard transactional reconciliation requires strict mapping of key transactional fields:
+- **Header Fields:** PO Number, PO Revision, Vendor ID / Supplier Name, Order Date, Buyer Contact, Payment Terms, Agreed Incoterm (e.g., FCA, FOB, DAP; [`evidence.md#evd-p02-005`](./evidence.md)).
+- **Line-Level Item Fields:** PO Line Item Number, Buyer Part Number / Material SKU, Supplier Part Number, Ordered Quantity, Unit of Measure (UOM), Unit Price.
+- **Timing & Schedule Line Attributes (`CLM-P02-003` / `E1`):**
+  - **Requested Delivery Date (`RDD` / DTM 002):** The baseline contract date requested by the buyer.
+  - **Promised Delivery Date (`PDD` / DTM 067):** Formal date committed by vendor in acknowledgment.
+  - **Estimated Delivery Date (`EDD` / DTM 017):** In-transit revised date generated by carrier or supplier logistics updates.
+  - **Scheduled Ship Date (DTM 068):** Promised dispatch date from vendor origin facility.
+
+### 2.3 Partial Shipment & Split Delivery Handling
+- **ERP Schedule Line Semantics (`CLM-P02-004`, `CLM-P02-005` / `E1`):** In enterprise ERPs (e.g., SAP S/4HANA; [`evidence.md#evd-p02-003`](./evidence.md)):
+  - Order acknowledgments are recorded in table `EKES` under category `AB`.
+  - Delivery schedule lines reside in table `EKET`.
+  - In standard SAP customizing (table `V_T163G`), confirmation category `AB` is informational by default and does not automatically update `EKET` delivery dates for MRP planning unless explicitly configured as MRP-relevant (`KZDIS`).
+  - When a supplier commits to a partial shipment (e.g., 60 units on date A, 40 units on date B), schedule lines must be explicitly split with separate confirmation references to prevent planning discrepancies and incorrect open-order balances.
+
+### 2.4 Delay Escalation Practices & SLA Governance
+- **Operational Escalation Ladder:**
+  - **Level 0 (T+24h post-PO):** Order dispatch confirmation; initial acknowledgment timer active.
+  - **Level 1 (T+48h unacknowledged):** Automated polite chaser notification staged for vendor order management contact.
+  - **Level 2 (T+72h unacknowledged / Material Delay):** Expediter inquiry and delivery confirmation request; buffer analysis triggered.
+  - **Level 3 (Delay breaches Safety Stock Buffer):** Staged notification to Category Buyer and Inventory Planner; review of secondary supplier split (handoff to P03).
+  - **Level 4 (Critical breach / Unresponsive vendor):** Commercial escalation; formal Notice of Default / Liquidated Damages review per contract terms negotiated in P01.
+- **Expediting Overhead (`CLM-P02-006` / `E0`):** Procurement practitioners report that chasing unacknowledged orders and resolving delivery date slippage constitutes a substantial portion of daily expediting effort. Specific generalized figures (e.g., 10 hours/week) are classified as an unverified operational hypothesis (`E0`).
+
+### 2.5 Buyer and Supplier Legal & Operational Responsibilities
+- **Incoterms 2020 Allocation (`CLM-P02-007` / `E1`):** Under origin terms (`FCA`, `FOB`), the supplier's delivery obligation is met when goods are delivered into carrier custody; carrier transit delays are buyer logistics responsibilities. Under destination terms (`DAP`, `DDP`), the supplier is legally accountable until goods arrive at the buyer's destination receiving dock.
+- **Notification & Mitigation:** Standard commercial contracts require vendors to provide prompt written notification upon discovering circumstances likely to cause delivery slippage, accompanied by a revised recovery plan.
 
 ---
 
@@ -41,7 +74,7 @@
 |---|---|---|---|
 | **Supplier Portals** | SAP Ariba, Coupa Supplier Portal, Jaggaer | Supplier self-service order confirmation, ASN generation, basic shipping status. | High supplier onboarding attrition; suppliers ignore portal updates and communicate via out-of-band email or PDF. |
 | **Supply Chain Visibility Platforms** | Project44, FourKites, Shippeo | GPS carrier tracking, ocean freight container milestones, predictive ETA. | Excellent for freight in-transit, but blind to upstream manufacturing delays or unacknowledged shop-floor orders prior to carrier pickup. |
-| **ERP Order Management** | SAP S/4HANA (MM), Oracle Cloud SCM | Standard PO creation, static confirmation control keys, delivery tolerance flags. | Rigid rules fail to parse conversational vendor delays (e.g., "raw material shortage, shipping next Tuesday"); requires manual buyer data entry. |
+| **ERP Order Management** | SAP S/4HANA (MM), Oracle Cloud SCM | Standard PO creation, static confirmation control keys (`AB`/`LA`), delivery tolerance flags. | Rigid rules fail to parse conversational vendor delays (e.g., "raw material shortage, shipping next Tuesday"); requires manual buyer data entry. |
 
 ---
 
@@ -57,5 +90,6 @@
 
 - Evidence Log: [`evidence.md`](./evidence.md)
 - Operational Workflow Map: [`workflow.md`](./workflow.md)
-- ART Agent Validation: [`art-validation.md`](./art-validation.md)
+- Benchmark Specification: [`benchmark-DELIVERY-001.md`](./benchmark-DELIVERY-001.md)
+- ART Agent Validation Protocol: [`art-validation.md`](./art-validation.md)
 - Central Ambiguity Log: [`../../AMBIGUITIES.md`](../../AMBIGUITIES.md)
