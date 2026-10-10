@@ -6,30 +6,79 @@
 > **Governing Standard:** [`../../RESEARCH_STANDARD.md`](../../RESEARCH_STANDARD.md)  
 > **Validation Plan:** [`./art-validation.md`](./art-validation.md)  
 > **Operational Workflow:** [`./workflow.md`](./workflow.md)  
-> **Status:** Proposed Governance Architecture (`UNTESTED` / Pending Agent Lab Configuration)  
-> **Date:** 9 October 2026  
+> **Status:** Agent built in Agent Lab (`InvestigationLab` / `Testing`), but NOT run (Playground runs: none); Agent Lab Governance (Action Registry, Policy Rules, Human Review) is **not recorded**; scenario test status: `UNTESTED`  
+> **Date:** 2026-10-09 to 2026-10-10  
 
 ---
 
 ## 1. Architectural Summary & Context
 
-This guide defines the end-to-end governance configuration in **ART Agent Lab** for the proposed **P03 Replenishment Exception Investigator** (Read-Only Agent).
-
-It adapts the proven design pattern observed in the production **Implant Usage Reconciliation Agent**'s Governance tab (comprising Action Registry, Fact Library, Policy Rules, and Human Review approval workflows). 
+This guide defines the governance configuration, attached tool allowlist, system prompt rules, and target guardrail architecture for the **P03 Replenishment Exception Investigator** (Read-Only Agent) in **ART Agent Lab**.
 
 ### Epistemic Grounding & Core Safety Invariants:
-1. **Strictly Read-Only Scope:** The agent is designed purely as an analytical diagnostic tool. It collects approved inventory snapshots, validates input data quality, flags configured reorder threshold breaches, and delivers an auditable report. It is **never** authorized to perform write actions (such as generating purchase requisitions, creating purchase orders, updating stock balances, or dispatching supplier messages).
+1. **Strictly Read-Only Scope:** The agent is designed purely as an analytical diagnostic tool. It collects inventory snapshots, validates input data quality, flags configured reorder threshold breaches, and delivers an auditable report. It is **never** authorized to perform write actions (such as generating purchase requisitions, creating purchase orders, updating stock balances, or dispatching supplier messages).
 2. **Fail-Closed Default:** If any uncertainty, data conflict, stale snapshot, or write attempt is encountered, execution immediately halts or transfers to a human planner.
-3. **Defense-in-Depth:** Agent Lab governance policy rules operate as an application-level guardrail. Primary enforcement remains the read-only ERP/ERPNext API role (returning HTTP 403 on any state modification, tracking open ambiguity `AMB-P03-005`).
-4. **Current Status:** Inferred from Agent Lab UI specifications and architectural templates; **all rules and facts remain UNTESTED** until validated in the Agent Lab Playground.
+3. **Defense-in-Depth:** Agent Lab governance policy rules operate as an application-level guardrail. Primary enforcement remains the read-only ERP/ERPNext API role (returning HTTP 403 on any state modification; see open ambiguity `AMB-P03-005`).
+4. **Current Implementation Status:** The agent has been built on the board in Agent Lab (workspace `InvestigationLab`, environment `Testing`), but has NOT been run. Agent Lab governance features (Action Registry, Policy Rules, Human Review) were **not recorded** as configured for this agent.
 
 ---
 
-## 2. Action Registry Configuration
+## 2. Agent Board Architecture & Tool Allowlist
 
-In Agent Lab, an agent may only execute actions explicitly declared and permitted in its **Action Registry**. To enforce a strictly read-only posture, exactly **one** custom action is registered, with zero write actions permitted.
+The agent board in Agent Lab connects three functional nodes:
 
-### Registered Action: `p03.report_replenishment_exception`
+```text
+[ Model Node: Openai/Gpt-5.4 ] ────► [ Prompt Node: ERP-P03 ]
+                 │
+                 ▼
+[ Tool Connector Node (8 Tools from erpnext_p03_v2) ]
+```
+
+### 2.1 Model Node Configuration
+- **Model:** `Openai/Gpt-5.4`
+- **Capabilities:** 13 capabilities enabled.
+- **Unverified Risk:** The list of those 13 enabled capabilities was **NOT captured**. Some capabilities may allow actions outside the 8 attached tools.
+
+### 2.2 Published Tool Allowlist (Tool Connector Node)
+The Tool Connector node attaches exactly **8 published, read-only tools** from provider `erpnext_p03_v2`. Every HTTP operation is a `GET` step; zero create, update, submit, or delete tools exist. (The older providers `erpnext_art` and `erpnext_p03` now show 0 tools).
+
+| # | Tool Display Name | Canonical Identifier | Provider | HTTP Method | Scope / Function |
+|---|---|---|---|---|---|
+| 1 | Find Inventory Across Warehouses | `find_inventory_across_warehouses` | `erpnext_p03_v2` | GET | Multi-warehouse stock balance distribution |
+| 2 | Calculate Inventory Shortage | `calculate_inventory_shortages` | `erpnext_p03_v2` | Read-only Compute | Function-step shortage calculator |
+| 3 | Get Item Reorder Level | `Get Item Reorder Level` | `erpnext_p03_v2` | GET | Item master reorder level and rules |
+| 4 | Find Replenishment Requests | `find_replenishment_requests` | `erpnext_p03_v2` | GET | Open material requests (`MAT-MR-...`) |
+| 5 | Get Item Stock | `get_tem_stock - ERPNext` | `erpnext_p03_v2` | GET | Item-warehouse stock position query |
+| 6 | Check Transfer Availability | `check_transfer_availability` | `erpnext_p03_v2` | GET | Multi-location transfer stock availability |
+| 7 | List Open Purchase Orders | `list_open_purchase_orders` | `erpnext_p03_v2` | GET | Open purchase orders (`PUR-ORD-...`) |
+| 8 | Get PO Details | `get_po_details` | `erpnext_p03_v2` | GET | Purchase order line-item and request linkage |
+
+> [!IMPORTANT]
+> **Zero Write Tools Attached:**  
+> No write tools (e.g. `create_purchase_requisition`, `submit_po`, `update_stock`) are attached or available in provider `erpnext_p03_v2`.
+
+### 2.3 System Prompt Rules (Summary Form)
+The Prompt node contains a system prompt constructed in the ERP-P02 style (titled `ERP-P03`). Its governing rules in summary form:
+1. **Strictly Read-Only:** Refuse any user request to create, update, submit, or delete documents or alter system state without calling a tool.
+2. **No Value Guessing:** Never guess, estimate, or extrapolate any numerical quantity, date, or threshold; name the specific tool source for every reported value.
+3. **Empty Result Semantics:** An empty or null result from a tool means "nothing found", never numerical zero.
+4. **Mandatory Anomaly Flagging:** Must proactively flag: missing values, reserved quantity exceeding actual physical stock, conflicting values across sources, unit of measure differences, unclear or unmapped order statuses, a material request with status `Ordered` lacking a matching open purchase order, and unexplained projected quantities.
+5. **Privacy Enforcement:** Never repeat personal names, telephone numbers, email addresses, supplier contact details, or credentials from tool outputs.
+6. **Structured Reporting Format:** Conclude with a deterministic status classification: `Status: OK`, `Status: INCOMPLETE`, or `Status: NEEDS HUMAN REVIEW`.
+7. **Diagnostic Disclaimer:** End with an explicit closing disclaimer stating that the report is diagnostic only and is not a purchase order recommendation.
+8. **Repository Storage Note:** *Full prompt text not stored in the repository.*
+
+---
+
+## 3. Agent Lab Governance Configuration (Status: Not Recorded)
+
+> [!NOTE]
+> **Implementation Status: Not Recorded.**  
+> In the built agent board captured on 2026-10-10, native Agent Lab governance modules (**Action Registry**, **Policy Rules**, **Human Review**) were **NOT configured** (recorded as "not recorded").  
+> The sections below specify the target governance architecture required to enforce fail-closed controls before production execution.
+
+### 3.1 Proposed Action Registry
+In Agent Lab, an agent may only execute actions explicitly declared and permitted in its **Action Registry**. Exactly **one** read-only custom action is specified:
 
 | Parameter | Configuration Value | Description / Governance Purpose |
 |---|---|---|
@@ -41,17 +90,11 @@ In Agent Lab, an agent may only execute actions explicitly declared and permitte
 | **Required Facts** | `DATA_COMPLETE`, `REQUIRES_HUMAN_REVIEW` | Mandatory facts that must be populated before action execution. |
 | **Allowed Side-Effects** | `NONE` (Zero Write Operations) | Strictly forbids ERP document creation, modification, or deletion. |
 
-> [!IMPORTANT]
-> **Zero Write Actions Registered:**  
-> Never register actions such as `p03.create_purchase_requisition`, `p03.submit_po`, or `p03.update_stock`. Because the agent's capability boundary is locked by the registry, the agent has no mechanism to attempt or execute transactions in the ERP.
-
 ---
 
-## 3. Fact Library Definition
+## 4. Fact Library Definition (Target Specification)
 
-The **Fact Library** contains variables and flags evaluated by Policy Rules and routed into Human Review approval steps.
-
-Unlike the generic Implant agent (which accumulated auto-generated parser fields), the P03 library is intentionally pruned to include only purposeful, test-mapped facts that directly mirror scenarios in [`art-validation.md`](./art-validation.md):
+The **Fact Library** contains variables and flags evaluated by Policy Rules and routed into Human Review approval steps:
 
 | Fact Identifier | Data Type | Default Value | Driving Test Case / Trigger | Description & Governance Function |
 |---|---|---|---|---|
@@ -68,9 +111,9 @@ Unlike the generic Implant agent (which accumulated auto-generated parser fields
 
 ---
 
-## 4. Policy Rules Specification
+## 5. Policy Rules Specification (Target Specification)
 
-Agent Lab evaluates **Policy Rules** sequentially in descending **Priority Order**, where the **first matching rule wins**. 
+Agent Lab evaluates **Policy Rules** sequentially in descending **Priority Order**, where the **first matching rule wins**:
 
 ```text
 [Incoming Action: p03.report_replenishment_exception]
@@ -129,9 +172,9 @@ Agent Lab evaluates **Policy Rules** sequentially in descending **Priority Order
 
 ---
 
-## 5. Human Review Workflow Configuration
+## 6. Human Review Workflow Configuration (Target Specification)
 
-When a Policy Rule resolves to `ASK_HUMAN`, Agent Lab triggers the **Human Review** approval flow. P03 directly adopts the fail-closed parameters modeled in the Implant agent:
+When a Policy Rule resolves to `ASK_HUMAN`, Agent Lab triggers the **Human Review** approval flow:
 
 | Review Setting | Configured Value | Operational Justification |
 |---|---|---|
@@ -144,24 +187,28 @@ When a Policy Rule resolves to `ASK_HUMAN`, Agent Lab triggers the **Human Revie
 
 ---
 
-## 6. Operational Cautions & Implementation Guardrails
+## 7. Operational Cautions & Implementation Guardrails
 
-1. **Rule Outcome Limitations in Agent Lab:**  
-   In the Implant agent screenshot, `Ask Human` is the primary visible enforcement outcome. During setup in the Agent Lab UI, verify whether an explicit `Block` / `Deny` outcome exists for Rule 1 (`WRITE_REQUESTED`). If absent, configure `Ask Human` with a mandatory pre-filled rejection note.
-2. **ERP-Level Role Isolation (`AMB-P03-005`):**  
-   Agent Lab governance is an application-layer control. It does **not** replace backend infrastructure controls. The ERPNext / ERP API service user credentials provided to the agent must possess **exclusively Read-Only permissions** (e.g., `SELECT` / `GET` on `Item`, `Bin`, `Purchase Order Item`, with zero `INSERT`/`UPDATE`/`SUBMIT` permissions). A `403 Forbidden` response at the network layer remains the ultimate safeguard.
-3. **Fact Hygiene:**  
-   Do not blindly accept auto-generated output parser fields (such as `additionalProperties`, `case_id`, `reason_raw`). Maintain only clean, typed, documented facts in the P03 Fact Library to avoid catalog bloat and rule ambiguity.
+1. **ERP Backend User Permissions (`AMB-P03-005`):**  
+   Agent Lab governance is an application-layer control that does not substitute for backend authorization. The permissions of the API key's user are **unverified** (`AMB-P03-005`, severity `A4`). On the Frappe Cloud site, items and purchase orders were created by a normal user account; therefore, the API key credentials may not be strictly read-only. Primary backend restriction to HTTP `GET` remains mandatory.
+2. **Model Node Capabilities Unverified:**  
+   The 13 capabilities enabled on the agent's `Openai/Gpt-5.4` model node were not enumerated or captured. Unverified capabilities could theoretically permit actions outside the 8 attached tools.
+3. **Governance Modules Not Recorded:**  
+   Because native Agent Lab Policy Rules, Human Review, and Action Registry were not recorded as configured on the built agent, the agent currently relies entirely on prompt instructions and Tool Connector tool restrictions. Full governance configuration must be completed before running live tests.
 4. **Epistemic Traceability:**  
    Every fact and rule condition mapped above corresponds directly to an unexecuted test scenario in [`art-validation.md`](./art-validation.md). Keep all test cases labeled as **UNTESTED** until empirical runs have been conducted and logged in the Agent Lab Playground.
 
 ---
 
-## 7. Next Actions & Execution Checklist
+## 8. Next Actions & Execution Checklist
 
-- [ ] Open **Agent Lab** $\rightarrow$ Create Agent: `Replenishment Exception Investigator`.
-- [ ] Navigate to **Governance** tab $\rightarrow$ Action Registry $\rightarrow$ Register `p03.report_replenishment_exception` (Low Risk, Sync).
-- [ ] Add the 7 core operational facts to the **Fact Library** (`WRITE_REQUESTED`, `DATA_COMPLETE`, `SNAPSHOT_STALE`, `SOURCE_CONFLICT`, `STATUS_MAPPING_KNOWN`, `UOM_CONVERSION_APPROVED`, `REQUIRES_HUMAN_REVIEW`).
-- [ ] Configure the 4 priority-ordered **Policy Rules** in the rule editor.
-- [ ] Configure the **Human Review** flow with `Inventory Planners`, `Any one`, `4h timeout`, and `Timeout Policy: Block`.
-- [ ] Conduct initial test runs in **Playground** against synthetic payloads to exercise `TST-P03-001` through `TST-P03-013`.
+- [x] Create agent board in Agent Lab: `P03 Replenishment Exception Investigator` (built in `InvestigationLab` / `Testing`).
+- [x] Attach 8 published read-only tools from provider `erpnext_p03_v2`.
+- [x] Configure system prompt in ERP-P03 style with strict read-only and diagnostic rules.
+- [ ] Configure Governance tab $\rightarrow$ Action Registry $\rightarrow$ Register `p03.report_replenishment_exception` (not recorded).
+- [ ] Populate Fact Library with the 10 operational facts (not recorded).
+- [ ] Configure the 4 priority-ordered Policy Rules (not recorded).
+- [ ] Configure Human Review workflow with `Inventory Planners`, `Any one`, `4h timeout`, and `Timeout Policy: Block` (not recorded).
+- [ ] Enumerate and verify the 13 model node capabilities.
+- [ ] Audit Frappe Cloud API key user permissions to ensure backend read-only enforcement (`AMB-P03-005`).
+- [ ] Conduct initial test runs in Agent Lab Playground across test scenarios `TST-P03-001` through `TST-P03-013` (currently 0 runs).
